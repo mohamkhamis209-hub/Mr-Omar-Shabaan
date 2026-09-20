@@ -511,6 +511,21 @@
         } from './js/firebase-config.js';
 
         let cachedGrades = [];
+        // ترتيب محتوى كل قسم: الأحدث أولاً، مع إبقاء ترتيب الأقسام كما هو.
+        function contentTime(data) {
+            const v = data?.addedAt ?? data?.createdAt ?? data?.sentAt ?? data?.publishedAt ?? data?.uploadedAt ?? data?.date;
+            if (!v) return 0;
+            if (typeof v?.toMillis === 'function') return v.toMillis();
+            if (typeof v?.toDate === 'function') { const d = v.toDate(); return d instanceof Date ? d.getTime() : 0; }
+            if (v instanceof Date) return v.getTime();
+            if (typeof v === 'number') return v;
+            const t = Date.parse(String(v));
+            return Number.isFinite(t) ? t : 0;
+        }
+        function sortContentNewestFirst(items) {
+            return items.sort((a,b) => contentTime(b.data || b) - contentTime(a.data || a));
+        }
+
 
         function generateCode() {
             return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -2356,7 +2371,7 @@
                 url,
                 grade,
                 type: type || 'normal',
-                addedAt: new Date()
+                addedAt: serverTimestamp()
             });
             alert('✅ تمت الإضافة');
             window.showVideos();
@@ -2400,6 +2415,7 @@
                 const data = d.data();
                 videos.push({ id: d.id, ...data });
             });
+            sortContentNewestFirst(videos);
 
             if (searchTerm) {
                 videos = videos.filter(v =>
@@ -2490,6 +2506,7 @@
                 const data = d.data();
                 books.push({ id: d.id, ...data });
             });
+            sortContentNewestFirst(books);
 
             if (searchTerm) {
                 books = books.filter(b =>
@@ -2600,7 +2617,7 @@
                 title, 
                 url,
                 grade, 
-                addedAt: new Date() 
+                addedAt: serverTimestamp() 
             });
             alert('✅ تمت الإضافة');
             window.showBooks();
@@ -2693,7 +2710,7 @@
                 questions: window.__examQuestions,
                 answerReveal: reveal,
                 structured: true,
-                addedAt: new Date()
+                addedAt: serverTimestamp()
             });
 
             alert('✅ تم إنشاء الاختبار وحفظ الأسئلة وإعداد ظهور الإجابات');
@@ -2788,6 +2805,7 @@
                 const snap = await getDocs(collection(db, 'exams'));
                 let exams = [];
                 snap.forEach(d => exams.push({ id: d.id, ...d.data() }));
+                sortContentNewestFirst(exams);
 
                 if (gradeFilter !== 'all') {
                     exams = exams.filter(e => String(e.grade || 'all') === String(gradeFilter));
@@ -2938,7 +2956,7 @@
                 targetStudent: target,
                 grade,
                 isRead: false,
-                sentAt: new Date()
+                sentAt: serverTimestamp()
             });
             alert('✅ تم إرسال الإشعار');
             window.showNotifications();
@@ -2965,6 +2983,7 @@
                 const data = d.data();
                 notifs.push({ id: d.id, ...data });
             });
+            sortContentNewestFirst(notifs);
 
             if (searchTerm) {
                 notifs = notifs.filter(n =>

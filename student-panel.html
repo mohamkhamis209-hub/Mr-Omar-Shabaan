@@ -933,6 +933,21 @@
             addDoc, updateDoc, serverTimestamp, setDoc 
         } from './js/firebase-config.js';
 
+        // ترتيب محتوى كل قسم: الأحدث أولاً، بدون تغيير ترتيب الأقسام نفسها.
+        function contentTime(data) {
+            const v = data?.addedAt ?? data?.createdAt ?? data?.sentAt ?? data?.publishedAt ?? data?.uploadedAt ?? data?.date;
+            if (!v) return 0;
+            if (typeof v?.toMillis === 'function') return v.toMillis();
+            if (typeof v?.toDate === 'function') { const d = v.toDate(); return d instanceof Date ? d.getTime() : 0; }
+            if (v instanceof Date) return v.getTime();
+            if (typeof v === 'number') return v;
+            const t = Date.parse(String(v));
+            return Number.isFinite(t) ? t : 0;
+        }
+        function sortContentNewestFirst(items) {
+            return items.sort((a,b) => contentTime(b.data || b) - contentTime(a.data || a));
+        }
+
         // ============================================
         // تعريف الشارات
         // ============================================
@@ -1828,9 +1843,13 @@ else if (section === 'videos') {
 
         const videosData = [];
         snap.forEach(d => {
-            const data = d.data();
-            const videoId = d.id;
-            videosData.push({ id: videoId, data: data });
+            videosData.push({ id: d.id, data: d.data() });
+        });
+        sortContentNewestFirst(videosData);
+
+        videosData.forEach(item => {
+            const data = item.data;
+            const videoId = item.id;
             
             // استخراج معرف الفيديو فقط
             let youtubeId = extractYouTubeId(data.url);
@@ -2164,8 +2183,10 @@ else if (section === 'videos') {
                     if (snap.empty) {
                         html += `<p>لا توجد كتب حالياً</p>`;
                     } else {
-                        snap.forEach((d, index) => {
-                            const data = d.data();
+                        const booksData = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+                        sortContentNewestFirst(booksData);
+                        booksData.forEach((item, index) => {
+                            const data = item.data;
                             let originalUrl = data.url || '';
                             let embedUrl = originalUrl;
                             let fileId = null;
@@ -2259,9 +2280,11 @@ else if (section === 'videos') {
                         html += `<div style="background:white;border-radius:15px;padding:30px;text-align:center;color:#777;">لا توجد اختبارات حالياً</div>`;
                     }
 
-                    for (const d of snap.docs) {
-                        const data = d.data();
-                        const examId = d.id;
+                    const examData = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+                    sortContentNewestFirst(examData);
+                    for (const item of examData) {
+                        const data = item.data;
+                        const examId = item.id;
 
                         if (Array.isArray(data.questions)) {
                             let answersSnap;
@@ -2366,8 +2389,10 @@ else if (section === 'videos') {
                     let html = `<h2>🔔 الإشعارات</h2>`;
                     let count = 0;
                     let found = false;
-                    snap.forEach(d => {
-                        const data = d.data();
+                    const notifData = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+                    sortContentNewestFirst(notifData);
+                    notifData.forEach(item => {
+                        const data = item.data;
                         if (data.targetStudent === 'all' || data.targetStudent === code) {
                             found = true;
                             count++;

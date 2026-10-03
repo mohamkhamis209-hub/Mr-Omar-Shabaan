@@ -4666,11 +4666,14 @@
         };
 
         if (localStorage.getItem('adminLoggedIn') !== 'true') {
-            window.location.href = 'admin-login.html';
-        }
-        applyAdminPermissions();
+    window.location.href = 'admin-login.html';
+} else {
+    await ensureAnonymousAuth();
+}
 
-        await getGrades();
+applyAdminPermissions();
+
+await getGrades();
         await window.showSection('dashboard');
     </script>
 <script type="module">

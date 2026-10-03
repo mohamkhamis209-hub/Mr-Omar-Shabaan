@@ -1026,18 +1026,15 @@
                             تم طباعة التقرير بتاريخ ${new Date().toLocaleDateString('ar-EG')} - ${new Date().toLocaleTimeString('ar-EG')}
                         </div>
                         
-                        <script>
-                            window.onload = function() {
-                                setTimeout(function() {
-                                    window.print();
-                                }, 500);
-                            };
-                        <\/script>
+                        <div></div>
                     </body>
                     </html>
                 `);
                 
                 printWindow.document.close();
+                printWindow.onload = function() {
+                    setTimeout(function() { printWindow.print(); }, 500);
+                };
                 
             } catch (error) {
                 console.error('خطأ في الطباعة:', error);

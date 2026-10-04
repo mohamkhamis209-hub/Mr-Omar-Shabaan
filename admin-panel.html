@@ -2580,7 +2580,10 @@
                             <select id="bookGrade">
                                 ${getGradeOptions('all')}
                             </select>
-                            <button onclick="addBook()" class="btn-sm btn-add">➕ إضافة</button>
+                            <select id="bookCourse" required>
+                                ${await getCourseOptionsHtml('')}
+                            </select>
+                            <button onclick="addBook()" class="btn-sm btn-add">➕ إضافة الكتاب للكورس</button>
                         </div>
                         <div class="filter-bar">
                             <select id="filterBookGrade" onchange="showBooks()">
@@ -2669,17 +2672,19 @@
             const title = document.getElementById('bookTitle').value.trim();
             const url = document.getElementById('bookUrl').value.trim();
             const grade = document.getElementById('bookGrade').value;
-            
-            if (!title || !url) return alert('املأ عنوان الفيديو والرابط');
-            if (!courseId) return alert('اختر الكورس أولاً قبل إضافة الفيديو');
+            const courseId = document.getElementById('bookCourse')?.value || '';
 
-            await addDoc(collection(db, 'books'), { 
-                title, 
+            if (!title || !url) return alert('املأ عنوان الكتاب والرابط');
+            if (!courseId) return alert('اختر الكورس أولاً قبل إضافة الكتاب');
+
+            await addDoc(collection(db, 'books'), {
+                title,
                 url,
-                grade, 
-                addedAt: serverTimestamp() 
+                grade,
+                courseId,
+                addedAt: serverTimestamp()
             });
-            alert('✅ تمت الإضافة');
+            alert('✅ تمت إضافة الكتاب للكورس');
             window.showBooks();
         };
 
@@ -2777,14 +2782,17 @@
         window.addExam = async function() {
             const title = document.getElementById('exTitle').value.trim();
             const grade = document.getElementById('exGrade').value;
+            const courseId = document.getElementById('exCourse')?.value || '';
             const reveal = document.getElementById('exReveal').value;
 
             if (!title) return alert('اكتب عنوان الاختبار');
+            if (!courseId) return alert('اختر الكورس أولاً قبل إضافة الاختبار');
             if (!window.__examQuestions.length) return alert('أضف سؤالاً واحداً على الأقل');
 
             await addDoc(collection(db, 'exams'), {
                 title,
                 grade,
+                courseId,
                 questions: window.__examQuestions,
                 answerReveal: reveal,
                 structured: true,
@@ -2896,6 +2904,7 @@
                     <div class="filter-bar" style="display:block;">
                         <input id="exTitle" placeholder="عنوان الاختبار" style="width:100%;margin-bottom:8px;">
                         <select id="exGrade" style="width:100%;margin-bottom:8px;">${getGradeOptions('all')}</select>
+                        <select id="exCourse" required style="width:100%;margin-bottom:8px;">${await getCourseOptionsHtml('')}</select>
                         <select id="exReveal" style="width:100%;margin-bottom:8px;">
                             <option value="instant">⚡ ظهور النتيجة فور الإجابة</option>
                             <option value="24h">🕐 ظهور النتيجة بعد 24 ساعة</option>

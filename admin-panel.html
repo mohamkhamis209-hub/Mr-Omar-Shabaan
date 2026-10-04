@@ -469,6 +469,7 @@
         <ul>
             <li onclick="window.showSection('dashboard')" data-permission="dashboard">📊 الرئيسية</li>
             <li onclick="window.showSection('students')" data-permission="students">👨‍🎓 الطلاب</li>
+            <li onclick="window.showSection('courses')" data-permission="courses">🎓 الكورسات</li>
             <li onclick="window.showSection('videos')" data-permission="videos">🎬 الفيديوهات</li>
             <li onclick="window.showSection('books')" data-permission="books">📚 الكتب</li>
             <li onclick="window.showSection('exams')" data-permission="exams">📝 الاختبارات</li>
@@ -611,7 +612,7 @@
 
         const ASSISTANT_PERMISSIONS = [
             ['dashboard','الرئيسية'],['students','الطلاب'],['groups','المجموعات والسنتر'],
-            ['attendance','حضور السنتر'],['parentReports','تقارير أولياء الأمور'],['examGrades','درجات امتحانات الطلاب'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],
+            ['courses','الكورسات'],['attendance','حضور السنتر'],['parentReports','تقارير أولياء الأمور'],['examGrades','درجات امتحانات الطلاب'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],
             ['notifications','الإشعارات'],['devices','طلبات الأجهزة'],['progress','تقدم الطلاب'],
             ['allDevices','إدارة الأجهزة'],['liveSettings','إعدادات البث'],['reports','التقارير'],
             ['badges','المكافآت'],['leaderboard','المتصدرين'],['advancedStats','الإحصائيات'],
@@ -1155,7 +1156,7 @@
 
         window.showSection = function(section) {
             const permissionMap = {
-                dashboard:'dashboard', students:'students', videos:'videos', books:'books',
+                dashboard:'dashboard', students:'students', courses:'courses', videos:'videos', books:'books',
                 exams:'exams', notifications:'notifications', devices:'devices', progress:'progress',
                 allDevices:'allDevices', liveSettings:'liveSettings', reports:'reports', badges:'badges',
                 attendance:'attendance', groups:'groups', parentReports:'parentReports', examGrades:'examGrades', leaderboard:'leaderboard',
@@ -1168,6 +1169,7 @@
             switch (section) {
                 case 'dashboard': showDashboard(); break;
                 case 'students': window.showStudents(); break;
+                case 'courses': window.showCourses(); break;
                 case 'videos': window.showVideos(); break;
                 case 'books': window.showBooks(); break;
                 case 'exams': window.showExams(); break;
@@ -2331,6 +2333,56 @@
             document.getElementById('content-area').innerHTML = html;
         };
 
+        async function getCourseOptionsHtml(selected='') {
+            let html='';
+            try {
+                const snap=await getDocs(collection(db,'courses'));
+                const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+                arr.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar'));
+                arr.forEach(c=>{html+=`<option value="${escapeHtml(c.id)}" ${c.id===selected?'selected':''}>${escapeHtml(c.name||'كورس')}</option>`;});
+            } catch(e) { console.warn('تعذر تحميل الكورسات:',e); }
+            return html;
+        }
+        window.addCourse = async function(){
+            const name=document.getElementById('courseName')?.value.trim();
+            const subject=document.getElementById('courseSubject')?.value.trim();
+            const grade=document.getElementById('courseGrade')?.value||'all';
+            const description=document.getElementById('courseDescription')?.value.trim();
+            const file=document.getElementById('courseImageFile')?.files?.[0];
+            if(!name) return alert('اكتب اسم الكورس');
+            let imageUrl='';
+            try{
+                if(file){
+                    if(!file.type.startsWith('image/')) return alert('اختر صورة صحيحة');
+                    if(file.size>5*1024*1024) return alert('حجم الصورة يجب ألا يتجاوز 5 ميجابايت');
+                    const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+                    const storageRef=ref(storage,`course-images/${Date.now()}_${safe}`);
+                    await uploadBytes(storageRef,file,{contentType:file.type});
+                    imageUrl=await getDownloadURL(storageRef);
+                }
+                await addDoc(collection(db,'courses'),{name,subject,grade,description,imageUrl,active:true,createdAt:serverTimestamp()});
+                alert('✅ تم إنشاء الكورس'); window.showCourses();
+            }catch(e){console.error(e);alert('❌ تعذر إنشاء الكورس: '+e.message);}
+        };
+        window.deleteCourse = async function(id){
+            if(!confirm('حذف الكورس؟ لن يتم حذف الفيديوهات التابعة له، لكنها ستصبح بدون كورس.')) return;
+            try{
+                const vids=await getDocs(query(collection(db,'videos'),where('courseId','==',id)));
+                for(const v of vids.docs) await updateDoc(v.ref,{courseId:null});
+                await deleteDoc(doc(db,'courses',id)); alert('🗑️ تم حذف الكورس'); window.showCourses();
+            }catch(e){alert('❌ تعذر حذف الكورس: '+e.message);}
+        };
+        window.showCourses = async function(){
+            await getGrades();
+            const snap=await getDocs(collection(db,'courses')); const courses=[]; snap.forEach(d=>courses.push({id:d.id,...d.data()}));
+            const vidsSnap=await getDocs(collection(db,'videos')); const counts={}; vidsSnap.forEach(d=>{const x=d.data(); if(x.courseId) counts[x.courseId]=(counts[x.courseId]||0)+1;});
+            let html=`<h2>🎓 الكورسات</h2><div class="filter-bar"><input id="courseName" placeholder="اسم الكورس"><input id="courseSubject" placeholder="المادة"><select id="courseGrade">${getGradeOptions('all')}</select><input id="courseImageFile" type="file" accept="image/*"><input id="courseDescription" placeholder="وصف مختصر"><button onclick="addCourse()" class="btn-sm btn-add">➕ إضافة كورس</button></div>`;
+            html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:15px;margin-top:18px">`;
+            if(!courses.length) html+=`<div style="background:white;padding:25px;border-radius:15px;color:#777">لا توجد كورسات بعد. أضف أول كورس من النموذج بالأعلى.</div>`;
+            courses.forEach(c=>{html+=`<div style="background:white;border:1px solid #ddd;border-radius:18px;overflow:hidden"><div style="height:145px;background:#eaf7f3">${c.imageUrl?`<img src="${escapeHtml(c.imageUrl)}" style="width:100%;height:100%;object-fit:cover">`:`<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:55px">🎓</div>`}</div><div style="padding:15px"><h3 style="margin:0 0 7px">${escapeHtml(c.name||'كورس')}</h3><p style="color:#777;margin:0 0 7px">${escapeHtml(c.subject||'')} • ${escapeHtml(c.grade==='1'?'أولى ثانوي':c.grade==='2'?'ثانية ثانوي':c.grade==='3'?'ثالثة ثانوي':'للجميع')}</p><p style="color:#0a956c;font-weight:800">🎥 ${counts[c.id]||0} فيديو</p><button onclick="deleteCourse('${escapeHtml(c.id)}')" class="btn-sm" style="background:#e74c3c;color:white">🗑️ حذف الكورس</button></div></div>`;});
+            html+=`</div>`; document.getElementById('content-area').innerHTML=html;
+        };
+
         function extractYouTubeId(url) {
             if (!url) return null;
             const watchMatch = url.match(/youtube\.com\/watch\?v=([^&]+)/);
@@ -2349,6 +2401,8 @@
             let url = document.getElementById('vidUrl').value.trim();
             const grade = document.getElementById('vidGrade').value;
             const type = document.getElementById('vidType').value;
+            const courseId = document.getElementById('vidCourse')?.value || '';
+            const lessonOrder = Number(document.getElementById('vidLessonOrder')?.value || 0);
 
             if (!title || !url) return alert('املأ البيانات');
 
@@ -2367,6 +2421,8 @@
                 title,
                 url,
                 grade,
+                courseId: courseId || null,
+                lessonOrder: lessonOrder || 0,
                 type: type || 'normal',
                 addedAt: serverTimestamp()
             });
@@ -2427,6 +2483,11 @@
                             <select id="vidGrade">
                                 ${getGradeOptions('all')}
                             </select>
+                            <select id="vidCourse">
+                                <option value="">📂 بدون كورس</option>
+                                ${await getCourseOptionsHtml('')}
+                            </select>
+                            <input id="vidLessonOrder" type="number" min="1" placeholder="ترتيب الدرس" style="max-width:130px">
                             <select id="vidType">
                                 <option value="normal">🎬 فيديو عادي</option>
                                 <option value="live">📡 بث مباشر</option>
@@ -2652,6 +2713,7 @@
                         <button class="btn-sm btn-danger" onclick="removeExamQuestion(${i})">🗑️ حذف</button>
                     </div>
                     <small style="color:#666;">${typeText}</small>
+                    ${q.imageUrl ? `<img src="${esc(q.imageUrl)}" style="display:block;max-width:260px;max-height:170px;object-fit:cover;border-radius:10px;margin-top:10px;">` : ''}
                     ${options}
                 </div>`;
             }).join('');
@@ -2662,12 +2724,28 @@
             window.renderExamQuestions();
         };
 
-        window.addExamQuestion = function() {
+        window.addExamQuestion = async function() {
             const text = document.getElementById('newQuestionText')?.value.trim();
             const type = document.getElementById('newQuestionType')?.value;
             if (!text) return alert('اكتب نص السؤال أولاً');
 
-            let q = { text, type, options: [], correct: null, correctText: '' };
+            let q = { text, type, options: [], correct: null, correctText: '', imageUrl: '' };
+
+            const imageFile = document.getElementById('questionImageFile')?.files?.[0];
+            if (imageFile) {
+                if (!imageFile.type.startsWith('image/')) return alert('اختر صورة صحيحة للسؤال');
+                if (imageFile.size > 5 * 1024 * 1024) return alert('حجم صورة السؤال يجب ألا يتجاوز 5 ميجابايت');
+                try {
+                    if (!auth.currentUser) await ensureAnonymousAuth();
+                    const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const storageRef = ref(storage, `exam-question-images/${Date.now()}_${safeName}`);
+                    await uploadBytes(storageRef, imageFile, { contentType: imageFile.type, cacheControl: 'public,max-age=3600' });
+                    q.imageUrl = await getDownloadURL(storageRef);
+                } catch (e) {
+                    console.error('فشل رفع صورة السؤال:', e);
+                    return alert('❌ فشل رفع صورة السؤال: ' + e.message);
+                }
+            }
 
             if (type === 'mcq') {
                 const options = [
@@ -2688,6 +2766,7 @@
 
             window.__examQuestions.push(q);
             document.getElementById('newQuestionText').value = '';
+            if (document.getElementById('questionImageFile')) document.getElementById('questionImageFile').value = '';
             if (document.getElementById('opt1')) ['opt1','opt2','opt3','opt4'].forEach(id => document.getElementById(id).value = '');
             if (document.getElementById('modelAnswer')) document.getElementById('modelAnswer').value = '';
             window.renderExamQuestions();
@@ -2825,6 +2904,8 @@
                         <div style="background:#f8f9fa;border-radius:12px;padding:14px;margin-top:10px;">
                             <h3 style="margin-top:0;">➕ إضافة سؤال</h3>
                             <textarea id="newQuestionText" placeholder="اكتب السؤال هنا..." style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid #ddd;"></textarea>
+                            <label style="display:block;margin-top:8px;font-weight:800;">🖼️ صورة مع السؤال (اختياري)</label>
+                            <input id="questionImageFile" type="file" accept="image/*" style="width:100%;margin-top:6px;">
                             <select id="newQuestionType" onchange="renderQuestionTypeFields()" style="width:100%;margin-top:8px;">
                                 <option value="mcq">🔘 اختيار من متعدد</option>
                                 <option value="truefalse">✅❌ صح أو خطأ</option>
@@ -4589,6 +4670,7 @@
 
             const collectionsToClear = [
                 'students',
+                'courses',
                 'videos',
                 'books',
                 'exams',

@@ -519,7 +519,7 @@ body.dark-mode .theme-toggle {
         height: 72px;
         padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
         gap: 6px;
-        background: rgba(28, 31, 34, 0.98);
+        background: #292929;
         border-top: 1px solid rgba(255,255,255,0.12);
         box-shadow: 0 -8px 25px rgba(0,0,0,0.16);
         overflow-x: auto;

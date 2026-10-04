@@ -2334,7 +2334,7 @@
         };
 
         async function getCourseOptionsHtml(selected='') {
-            let html='';
+            let html='<option value="">📂 اختر الكورس</option>';
             try {
                 const snap=await getDocs(collection(db,'courses'));
                 const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
@@ -2379,7 +2379,7 @@
             let html=`<h2>🎓 الكورسات</h2><div class="filter-bar"><input id="courseName" placeholder="اسم الكورس"><input id="courseSubject" placeholder="المادة"><select id="courseGrade">${getGradeOptions('all')}</select><input id="courseImageFile" type="file" accept="image/*"><input id="courseDescription" placeholder="وصف مختصر"><button onclick="addCourse()" class="btn-sm btn-add">➕ إضافة كورس</button></div>`;
             html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:15px;margin-top:18px">`;
             if(!courses.length) html+=`<div style="background:white;padding:25px;border-radius:15px;color:#777">لا توجد كورسات بعد. أضف أول كورس من النموذج بالأعلى.</div>`;
-            courses.forEach(c=>{html+=`<div style="background:white;border:1px solid #ddd;border-radius:18px;overflow:hidden"><div style="height:145px;background:#eaf7f3">${c.imageUrl?`<img src="${escapeHtml(c.imageUrl)}" style="width:100%;height:100%;object-fit:cover">`:`<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:55px">🎓</div>`}</div><div style="padding:15px"><h3 style="margin:0 0 7px">${escapeHtml(c.name||'كورس')}</h3><p style="color:#777;margin:0 0 7px">${escapeHtml(c.subject||'')} • ${escapeHtml(c.grade==='1'?'أولى ثانوي':c.grade==='2'?'ثانية ثانوي':c.grade==='3'?'ثالثة ثانوي':'للجميع')}</p><p style="color:#0a956c;font-weight:800">🎥 ${counts[c.id]||0} فيديو</p><button onclick="deleteCourse('${escapeHtml(c.id)}')" class="btn-sm" style="background:#e74c3c;color:white">🗑️ حذف الكورس</button></div></div>`;});
+            courses.forEach(c=>{html+=`<div style="background:white;border:1px solid #ddd;border-radius:18px;overflow:hidden"><div style="height:145px;background:#eaf7f3"><img src="${escapeHtml(c.imageUrl || 'assets/course-default.png')}" style="width:100%;height:100%;object-fit:cover"></div><div style="padding:15px"><h3 style="margin:0 0 7px">${escapeHtml(c.name||'كورس')}</h3><p style="color:#777;margin:0 0 7px">${escapeHtml(c.subject||'')} • ${escapeHtml(c.grade==='1'?'أولى ثانوي':c.grade==='2'?'ثانية ثانوي':c.grade==='3'?'ثالثة ثانوي':'للجميع')}</p><p style="color:#0a956c;font-weight:800">🎥 ${counts[c.id]||0} فيديو</p><button onclick="deleteCourse('${escapeHtml(c.id)}')" class="btn-sm" style="background:#e74c3c;color:white">🗑️ حذف الكورس</button></div></div>`;});
             html+=`</div>`; document.getElementById('content-area').innerHTML=html;
         };
 
@@ -2404,7 +2404,8 @@
             const courseId = document.getElementById('vidCourse')?.value || '';
             const lessonOrder = Number(document.getElementById('vidLessonOrder')?.value || 0);
 
-            if (!title || !url) return alert('املأ البيانات');
+            if (!title || !url) return alert('املأ عنوان الفيديو والرابط');
+            if (!courseId) return alert('اختر الكورس أولاً قبل إضافة الفيديو');
 
             const videoId = extractYouTubeId(url);
             if (videoId) {
@@ -2483,8 +2484,7 @@
                             <select id="vidGrade">
                                 ${getGradeOptions('all')}
                             </select>
-                            <select id="vidCourse">
-                                <option value="">📂 بدون كورس</option>
+                            <select id="vidCourse" required>
                                 ${await getCourseOptionsHtml('')}
                             </select>
                             <input id="vidLessonOrder" type="number" min="1" placeholder="ترتيب الدرس" style="max-width:130px">
@@ -2493,6 +2493,7 @@
                                 <option value="live">📡 بث مباشر</option>
                             </select>
                             <button onclick="addVideo()" class="btn-sm btn-add">➕ إضافة</button>
+                            <button onclick="showCourses()" class="btn-sm" style="background:#34495e;color:#fff">🎓 إضافة/إدارة الكورسات</button>
                         </div>
                         <div class="filter-bar">
                             <select id="filterVidGrade" onchange="showVideos()">
@@ -2669,7 +2670,8 @@
             const url = document.getElementById('bookUrl').value.trim();
             const grade = document.getElementById('bookGrade').value;
             
-            if (!title || !url) return alert('املأ البيانات');
+            if (!title || !url) return alert('املأ عنوان الفيديو والرابط');
+            if (!courseId) return alert('اختر الكورس أولاً قبل إضافة الفيديو');
 
             await addDoc(collection(db, 'books'), { 
                 title, 

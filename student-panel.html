@@ -661,6 +661,29 @@
             #questionModal .question-card{padding:18px;}
         }
     
+
+        /* ===== القائمة الجانبية للموبايل - تصميم التطبيق ===== */
+        .mobile-menu-toggle{display:none}
+        .mobile-sidebar-overlay{display:none}
+        .sidebar-profile-name{font-size:18px;font-weight:900;margin-top:8px;color:#fff}
+        .sidebar-profile-user{font-size:13px;opacity:.7;color:#fff;margin-top:3px}
+        @media(max-width:768px){
+            .mobile-menu-toggle{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:12px;background:#3a3a3a;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+            .mobile-sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:10000;opacity:0;visibility:hidden;transition:.22s}
+            .mobile-sidebar-overlay.open{opacity:1;visibility:visible}
+            .sidebar{display:flex!important;position:fixed!important;top:0!important;right:-330px!important;bottom:0!important;width:min(330px,86vw)!important;height:100vh!important;z-index:10001!important;margin:0!important;padding:24px 16px!important;overflow-y:auto!important;flex-direction:column!important;background:#292929!important;box-shadow:-12px 0 35px rgba(0,0,0,.28)!important;transition:right .25s ease!important}
+            .sidebar.mobile-open{right:0!important}
+            .sidebar .admin-img{width:76px!important;height:76px!important;border-radius:50%!important;object-fit:cover!important;margin:0 auto 8px!important;border:3px solid #31d796!important}
+            .sidebar h4{text-align:center!important;margin:0 0 2px!important;color:#fff!important;font-size:16px!important}
+            .sidebar .sidebar-profile-name,.sidebar .sidebar-profile-user{display:block!important;text-align:center!important}
+            .sidebar ul{display:flex!important;flex-direction:column!important;gap:5px!important;width:100%!important;margin:18px 0 0!important;padding:0!important}
+            .sidebar ul li{width:100%!important;box-sizing:border-box!important;margin:0!important;padding:14px 16px!important;border-radius:13px!important;color:#e9e9e9!important;font-size:16px!important;text-align:right!important;background:transparent!important}
+            .sidebar ul li:hover,.sidebar ul li.active-mobile-item{background:rgba(35,211,137,.18)!important;color:#35d79a!important}
+            .sidebar>button{margin-top:auto!important}
+            .header-bar{position:sticky;top:0;z-index:9998}
+            .header-bar h2{font-size:17px!important}
+        }
+
         /* ===== واجهة الكورسات الجديدة ===== */
         .courses-shell{max-width:1100px;margin:0 auto;direction:rtl}
         .courses-hero{background:linear-gradient(135deg,#0f8f6d,#19c995);color:#fff;border-radius:26px;padding:24px 22px;margin-bottom:20px;box-shadow:0 14px 35px rgba(15,143,109,.18)}
@@ -693,8 +716,10 @@
     </script>
 
     <div class="sidebar">
-        <img src="assets/Mohamed.jpg" alt="Admin" class="admin-img">
+        <img src="assets/Mohamed.jpg" alt="صورة الطالب" class="admin-img">
         <h4>المنصة التعليمية</h4>
+        <div class="sidebar-profile-name" id="sidebarStudentName">الطالب</div>
+        <div class="sidebar-profile-user" id="sidebarStudentUser">student</div>
         <ul>
             <li onclick="window.loadSection('dashboard')">📊 الرئيسية</li>
             <li onclick="window.loadSection('videos')">🎬 الفيديوهات</li>
@@ -713,7 +738,10 @@
     </div>
 
     <div class="header-bar">
-        <h2>مرحباً بك في المنصة</h2>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" onclick="window.toggleMobileSidebar()" aria-label="فتح القائمة">☰</button>
+            <h2>مرحباً بك في المنصة</h2>
+        </div>
         <div style="display:flex; align-items:center; gap:15px;">
             <div class="points-display" id="pointsDisplay">⭐ 0</div>
             <button class="theme-toggle-small" onclick="toggleTheme()">🌙</button>
@@ -722,6 +750,8 @@
             </div>
         </div>
     </div>
+
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" onclick="window.closeMobileSidebar()"></div>
 
     <div class="content" id="student-content">
         <p style="font-size:18px; color:#666;">اختر ما تريد من القائمة الجانبية</p>
@@ -808,6 +838,31 @@
             window.loadSection(section);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        window.toggleMobileSidebar = function() {
+            const sidebar=document.querySelector('.sidebar');
+            const overlay=document.getElementById('mobileSidebarOverlay');
+            if(!sidebar) return;
+            const open=sidebar.classList.toggle('mobile-open');
+            if(overlay) overlay.classList.toggle('open',open);
+            document.body.style.overflow=open?'hidden':'';
+        };
+        window.closeMobileSidebar = function() {
+            const sidebar=document.querySelector('.sidebar');
+            const overlay=document.getElementById('mobileSidebarOverlay');
+            if(sidebar) sidebar.classList.remove('mobile-open');
+            if(overlay) overlay.classList.remove('open');
+            document.body.style.overflow='';
+        };
+        document.addEventListener('DOMContentLoaded',function(){
+            const name=localStorage.getItem('studentName')||'الطالب';
+            const code=localStorage.getItem('studentCode')||'student';
+            const n=document.getElementById('sidebarStudentName');
+            const u=document.getElementById('sidebarStudentUser');
+            if(n) n.textContent=name;
+            if(u) u.textContent=code;
+            document.querySelectorAll('.sidebar li').forEach(li=>li.addEventListener('click',()=>window.closeMobileSidebar()));
+        });
 
         window.logoutStudent = function() {
             if (window._moduleLogout) {
@@ -1805,7 +1860,7 @@
             return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
         }
         function getCourseImage(course, firstVideo) {
-            return course?.imageUrl || youtubeThumb(firstVideo?.data?.url) || '';
+            return course?.imageUrl || youtubeThumb(firstVideo?.data?.url) || 'assets/course-default.png';
         }
         async function loadVisibleVideos(studentGrade) {
             let snap;

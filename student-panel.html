@@ -712,6 +712,49 @@
         <p style="font-size:18px; color:#666;">اختر ما تريد من القائمة الجانبية</p>
     </div>
 
+    <!-- ============================================ -->
+    <!-- شريط التنقل السفلي للموبايل -->
+    <!-- ============================================ -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="التنقل الرئيسي">
+        <button type="button" class="mobile-nav-item active" data-section="dashboard" onclick="window.bottomNavGo('dashboard', this)">
+            <span class="mobile-nav-icon">🏠</span><span>الرئيسية</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="videos" onclick="window.bottomNavGo('videos', this)">
+            <span class="mobile-nav-icon">🎬</span><span>كورساتي</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="books" onclick="window.bottomNavGo('books', this)">
+            <span class="mobile-nav-icon">📚</span><span>الكتب</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="exams" onclick="window.bottomNavGo('exams', this)">
+            <span class="mobile-nav-icon">📝</span><span>امتحاناتي</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="myProgress" onclick="window.bottomNavGo('myProgress', this)">
+            <span class="mobile-nav-icon">🏅</span><span>تقدمي</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="notifications" onclick="window.bottomNavGo('notifications', this)">
+            <span class="mobile-nav-icon">🔔</span><span>الإشعارات</span>
+            <b class="mobile-nav-badge" id="mobile-notif-count">0</b>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="centerAttendance" onclick="window.bottomNavGo('centerAttendance', this)">
+            <span class="mobile-nav-icon">📅</span><span>حضوري</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="live" onclick="window.bottomNavGo('live', this)">
+            <span class="mobile-nav-icon">📡</span><span>البث</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="badges" onclick="window.bottomNavGo('badges', this)">
+            <span class="mobile-nav-icon">🏆</span><span>الشارات</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="leaderboard" onclick="window.bottomNavGo('leaderboard', this)">
+            <span class="mobile-nav-icon">🥇</span><span>المتصدرين</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-section="founder" onclick="window.bottomNavGo('founder', this)">
+            <span class="mobile-nav-icon">👤</span><span>المنصة</span>
+        </button>
+        <button type="button" class="mobile-nav-item question-nav-item" onclick="window.openQuestionModal()">
+            <span class="mobile-nav-icon">💬</span><span>عندي سؤال</span>
+        </button>
+    </nav>
+
     <div id="questionModal" onclick="if(event.target===this) window.closeQuestionModal()">
         <div class="question-card">
             <h2 style="margin:0 0 8px;color:#252b52;">💬 عندي سؤال</h2>
@@ -741,6 +784,14 @@
                     }
                 }, 500);
             }
+        };
+
+        window.bottomNavGo = function(section, el) {
+            document.querySelectorAll('.mobile-nav-item').forEach(function(item) {
+                item.classList.toggle('active', item === el);
+            });
+            window.loadSection(section);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.logoutStudent = function() {
@@ -2411,6 +2462,8 @@ else if (section === 'videos') {
                     });
                     if (!found) html += `<p>لا توجد إشعارات لك حالياً</p>`;
                     document.getElementById('notif-count').innerText = count;
+                    const mobileNotif = document.getElementById('mobile-notif-count');
+                    if (mobileNotif) mobileNotif.innerText = count;
                     container.innerHTML = html;
                 } catch (error) {
                     console.error('خطأ في تحميل الإشعارات:', error);

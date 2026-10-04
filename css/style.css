@@ -495,3 +495,135 @@ body.dark-mode .theme-toggle {
     }
 }
 
+
+
+/* =====================================================
+   شريط التنقل السفلي - واجهة الموبايل الجديدة
+   ===================================================== */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 78px !important;
+    }
+
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 9999;
+        height: 72px;
+        padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+        gap: 6px;
+        background: rgba(28, 31, 34, 0.98);
+        border-top: 1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 -8px 25px rgba(0,0,0,0.16);
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-bottom-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-nav-item {
+        position: relative;
+        flex: 0 0 72px;
+        min-width: 72px;
+        height: 58px;
+        margin: 0 !important;
+        padding: 5px 3px !important;
+        border: 0 !important;
+        border-radius: 13px !important;
+        background: transparent !important;
+        color: #d9d9d9 !important;
+        box-shadow: none !important;
+        transform: none !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        white-space: nowrap;
+    }
+
+    .mobile-nav-icon {
+        font-size: 24px;
+        line-height: 26px;
+        filter: saturate(0.95);
+    }
+
+    .mobile-nav-item.active {
+        background: rgba(35, 211, 137, 0.16) !important;
+        color: #35d79a !important;
+    }
+
+    .mobile-nav-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        width: 25px;
+        height: 3px;
+        border-radius: 10px;
+        background: #35d79a;
+    }
+
+    .mobile-nav-item:active {
+        transform: scale(0.94) !important;
+    }
+
+    .mobile-nav-badge {
+        position: absolute;
+        top: 3px;
+        right: 15px;
+        min-width: 17px;
+        height: 17px;
+        padding: 0 4px;
+        border-radius: 20px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 9px;
+        line-height: 17px;
+        text-align: center;
+        font-weight: 800;
+    }
+
+    .question-nav-item {
+        color: #ffd166 !important;
+    }
+
+    .question-nav-item .mobile-nav-icon {
+        font-size: 23px;
+    }
+
+    /* الشريط العلوي لا يترك مساحة جانبية على الهاتف */
+    .header-bar {
+        margin-right: 0 !important;
+        padding: 14px 15px !important;
+    }
+
+    /* المحتوى يأخذ عرض الشاشة بالكامل */
+    .content {
+        margin-right: 0 !important;
+        padding: 15px !important;
+    }
+
+    /* إخفاء القائمة الجانبية القديمة في الهاتف؛ التنقل أصبح من الشريط السفلي */
+    .sidebar {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-bottom-nav {
+        display: none !important;
+    }
+}

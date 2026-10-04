@@ -717,7 +717,7 @@
 
     <div class="sidebar">
         <img src="assets/Mohamed.jpg" alt="صورة الطالب" class="admin-img">
-        <h4> مستر عمر شعبان</h4>
+        <h4>المنصة التعليمية</h4>
         <div class="sidebar-profile-name" id="sidebarStudentName">الطالب</div>
         <div class="sidebar-profile-user" id="sidebarStudentUser">student</div>
         <ul>
@@ -2007,6 +2007,10 @@
 
             const studentGrade = localStorage.getItem('studentGrade') || 'all';
             const code = localStorage.getItem('studentCode');
+            if (!code && section !== 'founder') {
+                window.location.href = 'student-login.html';
+                return;
+            }
 
 
             // ============================================
@@ -2049,18 +2053,12 @@
                         }
                     });
                     
-                    const badgeCount = await getBadgesCount(code);
                     
                     let html = `
                         <h2>📊 الرئيسية</h2>
                         <p style="color:#888; margin-bottom:20px;">مرحباً ${studentName}، إليك ملخص تقدمك</p>
                         
                         <div class="dashboard-stats">
-                            <div class="stat-card">
-                                <div class="icon">⭐</div>
-                                <div class="number">${points}</div>
-                                <div class="label">النقاط</div>
-                            </div>
                             <div class="stat-card">
                                 <div class="icon">🎬</div>
                                 <div class="number">${watched}/${totalVideos}</div>
@@ -2075,11 +2073,6 @@
                                 <div class="icon">📅</div>
                                 <div class="number">${attendanceCount}</div>
                                 <div class="label">أيام الحضور هذا الشهر</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="icon">🏅</div>
-                                <div class="number">${badgeCount}</div>
-                                <div class="label">الشارات</div>
                             </div>
                             <div class="stat-card">
                                 <div class="icon">🔁</div>
@@ -2516,7 +2509,6 @@
             // ============================================
             else if (section === 'leaderboard') {
                 try {
-                    await updateLeaderboard();
                     const leaderboardSnap = await getDocs(query(collection(db, 'leaderboard'), where('grade', 'in', [studentGrade, 'all'])));
                     const leaderboard = [];
                     leaderboardSnap.forEach(d => {
@@ -2600,10 +2592,6 @@
                                         <div style="text-align:center;">
                                             <div style="font-size:28px; font-weight:bold; color:#f39c12;">${totalVideos > 0 ? Math.round((Object.keys(progress).length/totalVideos)*100) : 0}%</div>
                                             <div style="color:#888;">نسبة الإنجاز</div>
-                                        </div>
-                                        <div style="text-align:center;">
-                                            <div style="font-size:28px; font-weight:bold; color:#9b59b6;">${points}</div>
-                                            <div style="color:#888;">النقاط</div>
                                         </div>
                                     </div>
                                 </div>

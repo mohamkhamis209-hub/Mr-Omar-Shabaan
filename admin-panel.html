@@ -479,12 +479,10 @@
             <li onclick="window.showSection('allDevices')" data-permission="allDevices">📱 إدارة الأجهزة</li>
             <li onclick="window.showSection('liveSettings')" data-permission="liveSettings">📡 إعدادات البث</li>
             <li onclick="window.showSection('reports')" data-permission="reports">📊 التقارير</li>
-            <li onclick="window.showSection('badges')" data-permission="badges">🏅 المكافآت</li>
             <li onclick="showSection('groups')" data-permission="groups">👥 المجموعات والسنتر</li>
             <li onclick="window.showSection('attendance')" data-permission="attendance">📅 حضور السنتر</li>
             <li onclick="window.showSection('parentReports')" data-permission="parentReports">👨‍👩‍👦 تقارير أولياء الأمور</li>
             <li onclick="window.showSection('examGrades')" data-permission="examGrades">📝 درجات امتحانات الطلاب</li>
-            <li onclick="window.showSection('leaderboard')" data-permission="leaderboard">🏆 المتصدرين</li>
             <li onclick="window.showSection('advancedStats')" data-permission="advancedStats">📈 إحصائيات متقدمة</li>
             <li onclick="window.showSection('sessions')" data-permission="sessions">🕐 جلسات الطلاب</li>
             <li onclick="window.showSection('fees')" data-permission="fees">💰 المصروفات</li>
@@ -615,7 +613,7 @@
             ['courses','الكورسات'],['attendance','حضور السنتر'],['parentReports','تقارير أولياء الأمور'],['examGrades','درجات امتحانات الطلاب'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],
             ['notifications','الإشعارات'],['devices','طلبات الأجهزة'],['progress','تقدم الطلاب'],
             ['allDevices','إدارة الأجهزة'],['liveSettings','إعدادات البث'],['reports','التقارير'],
-            ['badges','المكافآت'],['leaderboard','المتصدرين'],['advancedStats','الإحصائيات'],
+            ['advancedStats','الإحصائيات'],
             ['sessions','جلسات الطلاب'],['fees','المصروفات']
         ];
 
@@ -1158,8 +1156,8 @@
             const permissionMap = {
                 dashboard:'dashboard', students:'students', courses:'courses', videos:'videos', books:'books',
                 exams:'exams', notifications:'notifications', devices:'devices', progress:'progress',
-                allDevices:'allDevices', liveSettings:'liveSettings', reports:'reports', badges:'badges',
-                attendance:'attendance', groups:'groups', parentReports:'parentReports', examGrades:'examGrades', leaderboard:'leaderboard',
+                allDevices:'allDevices', liveSettings:'liveSettings', reports:'reports',
+                attendance:'attendance', groups:'groups', parentReports:'parentReports', examGrades:'examGrades',
                 advancedStats:'advancedStats', sessions:'sessions', fees:'fees', dangerZone:'dangerZone'
             };
             if (section !== 'assistants' && !requirePermission(permissionMap[section] || section)) return;
@@ -1179,13 +1177,11 @@
                 case 'allDevices': window.showAllDevices(); break;
                 case 'liveSettings': window.showLiveSettings(); break;
                 case 'reports': window.showReports(); break;
-                case 'badges': window.showBadgesManagement(); break;
                 case 'attendance': window.showCenterAttendance(); break;
                 case 'parentReports': window.showParentReports(); break;
                 case 'examGrades': window.openAllExamStudents(); break;
                 case 'groups': window.showGroupsManagement(); break;
                 case 'assistants': window.showAssistantManagement(); break;
-                case 'leaderboard': window.showLeaderboard(); break;
                 case 'advancedStats': window.showAdvancedStats(); break;
                 case 'sessions': window.showAllSessions(); break;
                 case 'fees': window.showFeesManagement(); break;

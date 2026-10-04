@@ -445,7 +445,7 @@
         body.dark-mode .progress-bar {
             background: #3d3d5c;
         }
-        #questionFab{position:fixed;right:22px;bottom:22px;width:58px;height:58px;border:0;border-radius:50%;background:#25D366;color:#fff;font-size:25px;cursor:pointer;z-index:9998;box-shadow:0 8px 25px rgba(0,0,0,.22);transition:.2s;}
+        #questionFab{position:fixed;right:22px;bottom:92px;width:58px;height:58px;border:0;border-radius:50%;background:#25D366;color:#fff;font-size:25px;cursor:pointer;z-index:9998;box-shadow:0 8px 25px rgba(0,0,0,.22);transition:.2s;}
         #questionFab:hover{transform:scale(1.06);}
         #questionModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:18px;}
         #questionModal .question-card{width:min(520px,100%);background:#fff;border-radius:22px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25);direction:rtl;}
@@ -657,7 +657,7 @@
                 height: 32px;
                 font-size: 16px;
             }
-            #questionFab{right:15px;bottom:15px;width:54px;height:54px;}
+            #questionFab{right:15px;bottom:88px;width:54px;height:54px;}
             #questionModal .question-card{padding:18px;}
         }
     
@@ -727,8 +727,6 @@
             <li onclick="window.loadSection('exams')">📝 الاختبارات</li>
             <li onclick="window.loadSection('notifications')">🔔 الإشعارات</li>
             <li onclick="window.loadSection('live')">📡 البث المباشر</li>
-            <li onclick="window.loadSection('badges')">🏅 الشارات والمكافآت</li>
-            <li onclick="window.loadSection('leaderboard')">🏆 لوحة المتصدرين</li>
             <li onclick="window.loadSection('myProgress')">📊 تقدمي</li>
             <li onclick="window.loadSection('centerAttendance')">📅 حضوري في السنتر</li>
             <li onclick="window.loadSection('founder')" style="font-weight:800;">👤 عن مؤسس المنصة</li>
@@ -743,7 +741,6 @@
             <h2>مرحباً بك في المنصة</h2>
         </div>
         <div style="display:flex; align-items:center; gap:15px;">
-            <div class="points-display" id="pointsDisplay">⭐ 0</div>
             <button class="theme-toggle-small" onclick="toggleTheme()">🌙</button>
             <div class="bell" onclick="window.loadSection('notifications')">
                 🔔 <span id="notif-count">0</span>
@@ -785,12 +782,6 @@
         </button>
         <button type="button" class="mobile-nav-item" data-section="live" onclick="window.bottomNavGo('live', this)">
             <span class="mobile-nav-icon">📡</span><span>البث</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="badges" onclick="window.bottomNavGo('badges', this)">
-            <span class="mobile-nav-icon">🏆</span><span>الشارات</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="leaderboard" onclick="window.bottomNavGo('leaderboard', this)">
-            <span class="mobile-nav-icon">🥇</span><span>المتصدرين</span>
         </button>
         <button type="button" class="mobile-nav-item" data-section="founder" onclick="window.bottomNavGo('founder', this)">
             <span class="mobile-nav-icon">👤</span><span>المنصة</span>
@@ -1427,7 +1418,6 @@
                 for (const doc of studentsSnap.docs) {
                     const data = doc.data();
                     const code = data.code;
-                    const points = await getStudentPoints(code);
                     
                     const progressSnap = await getDocs(query(collection(db, 'progress'), where('studentCode', '==', code)));
                     let videosWatched = 0;
@@ -2018,7 +2008,6 @@
             const studentGrade = localStorage.getItem('studentGrade') || 'all';
             const code = localStorage.getItem('studentCode');
 
-            await updatePointsDisplay(code);
 
             // ============================================
             // الرئيسية (Dashboard)
@@ -2036,7 +2025,6 @@
                     
                     const totalVideos = videosSnap.size;
                     const totalBooks = booksSnap.size;
-                    const points = await getStudentPoints(code);
                     
                     const today = new Date().toISOString().split('T')[0];
                     const sessionsQuery = query(
@@ -2516,7 +2504,6 @@
                     
                     html += `</div>`;
                     container.innerHTML = html;
-                    const points = await getStudentPoints(code);
                     document.getElementById('badgePoints').innerText = points;
                 } catch (error) {
                     console.error('خطأ في تحميل الشارات:', error);
@@ -2595,7 +2582,6 @@
                     });
 
                     const totalVideos = Object.keys(videos).length;
-                    const points = await getStudentPoints(code);
                     
                     let html = `<h2>📊 تقدمي</h2>
                                 <p style="color:#888; margin-bottom:20px;">${studentName}، إليك تفاصيل تقدمك</p>
@@ -2693,8 +2679,6 @@
         // بداية التحميل
         // ============================================
         recordLogin();
-        updateLeaderboard();
-        updatePointsDisplay(studentCode);
         loadSection('dashboard');
 
         console.log('✅ تم تحميل لوحة الطالب بنجاح');

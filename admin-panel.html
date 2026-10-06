@@ -451,6 +451,45 @@
         /* ===== لوحة المشرف - نفس هوية منصتك التعليمية ===== */
         body{background:#f5f8fb!important;color:#17283b}.sidebar{background:linear-gradient(180deg,#0b1d33,#102941)!important;padding:18px 14px!important}.platform-admin-logo{width:66px!important;height:66px!important;border-radius:18px!important;border:2px solid #12c98a!important;box-shadow:0 8px 22px rgba(0,0,0,.2)}.sidebar h3{color:#fff!important;font-weight:900!important;margin:9px 0 2px!important}.admin-role-label{text-align:center;color:#91a4b9;font-size:11px;margin-bottom:9px}.sidebar ul{margin-top:10px!important}.sidebar ul li{color:#dce7f0!important;border-radius:12px!important;font-size:14px!important;padding:12px 13px!important}.sidebar ul li:hover{background:rgba(18,201,138,.15)!important;color:#22d99a!important;transform:none!important;border-right:3px solid #18d391}.sidebar ul li.danger{color:#ff8f8f!important}.content{background:#f5f8fb!important;padding:26px 28px!important}.content>div:first-child h2{font-weight:900;color:#10233a}.dashboard-cards{gap:14px!important}.dashboard-card{border:1px solid #e5edf2!important;border-right:4px solid #10b981!important;border-radius:17px!important;box-shadow:0 7px 24px rgba(16,38,59,.06)!important;padding:18px!important}.dashboard-card .number{color:#10233a!important}.filter-bar{background:#fff!important;border:1px solid #e6edf2!important;border-radius:16px!important;box-shadow:0 5px 20px rgba(16,38,59,.04)}table{border:1px solid #e5edf2!important;border-radius:16px!important}th{background:#0b1d33!important}tr:nth-child(even){background:#f8fbfd!important}.btn-add,.btn-success{background:#10b981!important}.btn-primary,.btn-secondary{border-radius:11px!important}.grade-badge{border-radius:999px!important}.permission-box{border:1px solid #e5edf2;border-radius:14px!important}.mobile-menu-toggle{background:#0b1d33!important}.admin-section-card{background:#fff;border:1px solid #e6edf2;border-radius:18px;padding:18px;box-shadow:0 7px 24px rgba(16,38,59,.06)}
         @media(max-width:768px){.content{margin-right:0!important;padding:16px 12px 30px!important}.sidebar{right:-330px!important}.sidebar.mobile-open{right:0!important}}
+
+/* ===== FINAL RESPONSIVE FIX ===== */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{margin:0;background:#f5f8fb!important}
+#adminSidebar{width:270px;right:0;left:auto;top:0;height:100dvh;position:fixed;z-index:10001;overflow-y:auto;box-sizing:border-box}
+#content-area{margin-right:270px!important;width:auto;min-width:0;box-sizing:border-box;padding:24px 28px 40px!important}
+.admin-top-header{margin-right:270px!important;width:auto;box-sizing:border-box;display:flex!important;align-items:center;justify-content:space-between}
+.admin-top-header .mobile-menu-toggle{display:none}
+.admin-header-left{min-width:0}
+.header-notification-only{flex:0 0 auto}
+#adminMobileSidebarOverlay{display:none}
+#adminMobileBottomNav{display:none!important}
+@media (max-width:1024px){
+  #adminSidebar{width:245px}
+  #content-area,.admin-top-header{margin-right:245px!important}
+}
+@media (max-width:768px){
+  #adminSidebar{width:min(320px,86vw)!important;right:-340px!important;left:auto!important;top:0!important;height:100dvh!important;z-index:10001!important;transition:right .25s ease!important}
+  #adminSidebar.mobile-open{right:0!important}
+  #content-area{margin-right:0!important;width:100%!important;padding:14px 10px 88px!important;box-sizing:border-box}
+  .admin-top-header{margin-right:0!important;width:100%!important;min-height:54px!important;padding:7px 10px!important;position:sticky!important;top:0!important;z-index:10002!important}
+  .admin-top-header .mobile-menu-toggle{display:flex!important;position:static!important;width:42px!important;height:42px!important;flex:0 0 42px!important;border:0!important;border-radius:12px!important;background:#0b1d33!important;color:#fff!important;font-size:23px!important;align-items:center!important;justify-content:center!important}
+  .admin-header-left{gap:9px!important}
+  .admin-header-left strong{font-size:16px!important;white-space:nowrap}
+  .header-notification-only{width:40px!important;height:40px!important;font-size:19px!important}
+  #adminMobileSidebarOverlay{display:block;position:fixed;inset:0;background:rgba(4,16,30,.48);z-index:10000;opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
+  #adminMobileSidebarOverlay.open{opacity:1;visibility:visible;pointer-events:auto}
+  #adminMobileBottomNav{display:flex!important;position:fixed!important;right:0!important;left:0!important;bottom:0!important;height:68px!important;z-index:9999!important;background:#0b1d33!important}
+  #adminMobileBottomNav .mobile-nav-item{flex:1;min-width:0!important;border:0;background:transparent;color:#b7c5d2;padding:6px 2px!important;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+  #adminMobileBottomNav .mobile-nav-item.active{color:#19d291}
+  .content table{font-size:12px}
+  .filter-bar{width:100%;box-sizing:border-box}
+  .dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:520px){
+  .dashboard-cards{grid-template-columns:1fr!important}
+  #adminSidebar{width:min(310px,88vw)!important}
+  #content-area{padding-left:8px!important;padding-right:8px!important}
+}
 </style>
 </head>
 <body>
@@ -504,7 +543,6 @@
         <div class="header-notification-only" onclick="window.showSection('notifications')" aria-label="الإشعارات" title="الإشعارات">🔔 <span id="admin-header-notif-count">0</span></div>
     </div>
 
-    <button type="button" class="mobile-menu-toggle admin-legacy-toggle" id="adminMobileMenuToggleLegacy" onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button> onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button>
     <div class="mobile-sidebar-overlay" id="adminMobileSidebarOverlay" onclick="window.closeAdminMobileSidebar()"></div>
     <nav class="mobile-bottom-nav admin-mobile-bottom-nav" id="adminMobileBottomNav" aria-label="تنقل المشرف">
         <button type="button" class="mobile-nav-item active" onclick="window.showSection('dashboard')"><span class="mobile-nav-icon">🏠</span><span>الرئيسية</span></button>
@@ -521,9 +559,23 @@
     </div>
 
     <script>
-window.toggleAdminMobileSidebar=function(){document.getElementById('adminSidebar')?.classList.toggle('mobile-open');document.getElementById('adminMobileSidebarOverlay')?.classList.toggle('open');};
-window.closeAdminMobileSidebar=function(){document.getElementById('adminSidebar')?.classList.remove('mobile-open');document.getElementById('adminMobileSidebarOverlay')?.classList.remove('open');};
-document.addEventListener('click',function(e){if(window.innerWidth<=768 && e.target.closest('.sidebar li')) window.closeAdminMobileSidebar();});
+window.toggleAdminMobileSidebar=function(){
+  const sidebar=document.getElementById('adminSidebar');
+  const overlay=document.getElementById('adminMobileSidebarOverlay');
+  if(!sidebar) return;
+  const open=sidebar.classList.toggle('mobile-open');
+  if(overlay) overlay.classList.toggle('open',open);
+  document.body.classList.toggle('admin-menu-open',open);
+};
+window.closeAdminMobileSidebar=function(){
+  document.getElementById('adminSidebar')?.classList.remove('mobile-open');
+  document.getElementById('adminMobileSidebarOverlay')?.classList.remove('open');
+  document.body.classList.remove('admin-menu-open');
+};
+document.addEventListener('click',function(e){
+  if(window.innerWidth<=768 && e.target.closest('#adminSidebar li')) window.closeAdminMobileSidebar();
+});
+window.addEventListener('resize',function(){if(window.innerWidth>768) window.closeAdminMobileSidebar();});
 </script>
 <script src="js/firebase-config.js" type="module"></script>
     <script src="js/device.js" type="module"></script>
@@ -1283,7 +1335,9 @@ document.addEventListener('click',function(e){if(window.innerWidth<=768 && e.tar
                 el.style.display = isPrimaryAdmin() ? '' : 'none';
             });
             const title = document.querySelector('.sidebar h3');
-            if (title) title.textContent = isPrimaryAdmin() ? 'مرحباً بالمشرف الأساسي' : `مرحباً ${adminName}`;
+            if (title) title.textContent = 'منصتك التعليمية';
+            const roleLabel = document.querySelector('.sidebar .admin-role-label');
+            if (roleLabel) roleLabel.textContent = isPrimaryAdmin() ? 'المشرف الأساسي' : 'مشرف مساعد';
         }
 
         function escapeHtml(value) {

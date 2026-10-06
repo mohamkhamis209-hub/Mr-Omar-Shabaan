@@ -499,14 +499,25 @@
         </ul>
     </div>
 
-    <button type="button" class="mobile-menu-toggle" id="adminMobileMenuToggle" onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button>
+    <div class="admin-top-header platform-compact-header">
+        <div class="admin-header-left"><button type="button" class="mobile-menu-toggle" id="adminMobileMenuToggle" onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button><strong>لوحة المشرف</strong></div>
+        <div class="header-notification-only" onclick="window.showSection('notifications')" aria-label="الإشعارات" title="الإشعارات">🔔 <span id="admin-header-notif-count">0</span></div>
+    </div>
+
+    <button type="button" class="mobile-menu-toggle admin-legacy-toggle" id="adminMobileMenuToggleLegacy" onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button> onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button>
     <div class="mobile-sidebar-overlay" id="adminMobileSidebarOverlay" onclick="window.closeAdminMobileSidebar()"></div>
+    <nav class="mobile-bottom-nav admin-mobile-bottom-nav" id="adminMobileBottomNav" aria-label="تنقل المشرف">
+        <button type="button" class="mobile-nav-item active" onclick="window.showSection('dashboard')"><span class="mobile-nav-icon">🏠</span><span>الرئيسية</span></button>
+        <button type="button" class="mobile-nav-item" onclick="window.showSection('students')"><span class="mobile-nav-icon">👨‍🎓</span><span>الطلاب</span></button>
+        <button type="button" class="mobile-nav-item" onclick="window.showSection('pendingRequests')"><span class="mobile-nav-icon">⏳</span><span>الطلبات</span></button>
+        <button type="button" class="mobile-nav-item" onclick="window.showSection('courses')"><span class="mobile-nav-icon">🎓</span><span>الكورسات</span></button>
+        <button type="button" class="mobile-nav-item" onclick="window.showSection('notifications')"><span class="mobile-nav-icon">🔔</span><span>الإشعارات</span></button>
+    </nav>
     <div class="content" id="content-area">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <h2>مرحباً في لوحة التحكم</h2>
-            <button class="theme-toggle-small" onclick="toggleTheme()">🌙</button>
+            <h2>لوحة المشرف</h2>
         </div>
-        <p>اختر أحد الأقسام من القائمة الجانبية</p>
+        <p>إدارة الطلاب والكورسات والمحتوى والطلبات من مكان واحد.</p>
     </div>
 
     <script>
@@ -1087,6 +1098,24 @@ document.addEventListener('click',function(e){if(window.innerWidth<=768 && e.tar
  .mobile-sidebar-overlay.open{opacity:1;visibility:visible}
  .sidebar .platform-brand{padding-top:6px}
  .header-bar{padding-right:62px!important}
+}
+
+/* ===== لوحة المشرف بنفس هوية لوحة الطالب ===== */
+.admin-top-header{margin-right:270px!important;position:sticky;top:0;z-index:90;min-height:58px!important;padding:8px 18px!important}
+.admin-header-left{display:flex;align-items:center;gap:12px;color:#10233a}.admin-header-left strong{font-size:18px}.admin-legacy-toggle{display:none!important}
+.admin-top-header .mobile-menu-toggle{display:none}
+.admin-top-header .header-notification-only{color:#111;background:#fff}
+.admin-mobile-bottom-nav{display:none!important}
+@media(max-width:1024px){.admin-top-header{margin-right:245px!important}}
+@media(max-width:768px){
+ .admin-top-header{margin-right:0!important;padding:7px 10px!important;min-height:50px!important;position:sticky;top:0}
+ .admin-top-header .mobile-menu-toggle{display:flex!important;position:static!important;width:38px;height:38px!important;border-radius:11px}
+ .admin-header-left strong{font-size:16px}
+ .admin-mobile-bottom-nav{display:flex!important}
+ .admin-top-header .header-notification-only{width:38px;height:38px;font-size:20px}
+ .admin-top-header+.admin-legacy-toggle{display:none!important}
+ .admin-mobile-bottom-nav .mobile-nav-item{flex:1 0 68px;min-width:68px}
+ body{padding-bottom:78px!important}
 }
 </style>
                     </head>

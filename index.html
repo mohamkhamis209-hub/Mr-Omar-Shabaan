@@ -5,21 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصتك التعليمية</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#2e248d,#5d52dc,#786de8)}
-.box{width:min(500px,100%);background:#fff;border-radius:30px;padding:30px 22px;text-align:center;box-shadow:0 25px 70px #1c165b55}
-img{width:125px;height:125px;border-radius:50%;object-fit:cover;border:5px solid #6958e8;box-shadow:0 12px 28px #4b40a333}
-h1{color:#1b2340;font-size:27px;margin:16px 0 7px}.p{color:#81889d;font-size:14px;margin-bottom:22px}
-a{display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:57px;border-radius:16px;margin-top:11px;font-weight:800;font-size:17px}
-.student{color:#fff;background:linear-gradient(135deg,#5965e9,#7542d0)}.admin{color:#46506f;background:#f0f2f8;border:1px solid #e1e4ed}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Tahoma,Arial,sans-serif}body{min-height:100vh;background:linear-gradient(135deg,#0b1d33,#123c5d 55%,#10b981);display:grid;place-items:center;overflow:hidden;color:#fff}.page{width:min(520px,92vw);text-align:center;padding:28px}.logo{width:min(290px,72vw);aspect-ratio:1;object-fit:contain;background:#fff;border-radius:30px;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.28);margin:0 auto 24px}.title{font-size:30px;font-weight:950;margin:0 0 9px}.sub{font-size:14px;color:#dbe8f0;line-height:1.9;margin:0 auto 25px}.start{width:100%;min-height:62px;border:0;border-radius:17px;background:#fff;color:#0b7f5c;font-size:21px;font-weight:950;cursor:pointer;box-shadow:0 16px 35px rgba(0,0,0,.22);transition:.2s}.start:hover{transform:translateY(-2px)}.small{margin-top:14px;color:#b9cbd7;font-size:11px}@media(max-width:480px){.page{padding:18px}.logo{width:min(245px,70vw);padding:14px;border-radius:24px}.title{font-size:24px}.sub{font-size:12px}.start{min-height:58px;font-size:19px}}
 </style>
 </head>
 <body>
-<div class="box">
-<img src="assets/platform-logo.png" alt="شعار منصتك التعليمية"><div style="margin-top:14px"></div>
-<h1>منصتك التعليمية</h1>
-<p class="p">اختر طريقة الدخول للمتابعة</p>
-<a class="student" href="student-login.html">🎓 دخول الطالب</a>
-<a class="admin" href="admin-login.html">🔐 دخول المشرف</a>
-</div>
+<main class="page">
+<img class="logo" src="assets/platform-logo.png" alt="منصتك التعليمية">
+<h1 class="title">منصتك التعليمية</h1>
+<p class="sub">تعلم، اختبر نفسك، تابع تقدمك، واستمتع بكل محتواك التعليمي في مكان واحد.</p>
+<button class="start" onclick="location.href='student-login.html'">ابدأ مجانًا 🚀</button>
+<div class="small">© 2026 منصتك التعليمية</div>
+</main>
 </body>
 </html>

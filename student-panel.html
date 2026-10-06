@@ -706,6 +706,11 @@
         @media(max-width:768px){.header-bar{margin-right:0!important;padding:10px 12px!important}.content{margin-right:0!important;padding:14px 10px 90px!important}.sidebar{right:-330px!important}.sidebar.mobile-open{right:0!important}.profile-info-grid{grid-template-columns:1fr}.courses-hero{border-radius:18px!important}.course-cover{height:190px!important}}
 
 /* ===== تحديثات الهوية الجديدة ===== */
+/* ===== STUDENT THEME TOGGLE ===== */
+.student-header-actions{display:flex;align-items:center;gap:8px}.student-theme-toggle{position:static!important;width:42px!important;height:42px!important;margin:0!important;border-radius:12px!important;display:grid!important;place-items:center!important;border:1px solid #dfe7ed!important;background:#fff!important;color:#111!important;cursor:pointer!important;font-size:19px!important;box-shadow:0 4px 12px rgba(0,0,0,.06)!important}.student-theme-toggle .theme-sun{display:none}.student-theme-toggle .theme-moon{display:inline}body.dark-mode .student-theme-toggle{background:#1d2938!important;color:#fff!important;border-color:#344658!important}.student-theme-toggle .theme-sun{display:none}body.dark-mode .student-theme-toggle .theme-sun{display:inline}body.dark-mode .student-theme-toggle .theme-moon{display:none}
+
+body.dark-mode{background:#0b1220!important;color:#edf5fb!important}body.dark-mode .header-bar{background:#111a28!important;border-color:#293849!important;box-shadow:none!important}body.dark-mode .content{background:#0b1220!important;color:#edf5fb!important}body.dark-mode .content>p{color:#aebdcc!important}body.dark-mode .profile-info-grid>div,body.dark-mode .course-card-new,body.dark-mode .lesson-row,body.dark-mode .course-player-card,body.dark-mode .auto-play-box{background:#151f2d!important;border-color:#2b3a4b!important;color:#edf5fb!important}body.dark-mode .course-card-body h3,body.dark-mode .lesson-info h4,body.dark-mode .course-player-title{color:#fff!important}body.dark-mode .course-back-btn{background:#1d2938!important;color:#19d291!important;border-color:#19d291!important}body.dark-mode .profile-info-grid b{color:#fff!important}body.dark-mode .profile-info-grid span{color:#aebdcc!important}body.dark-mode .header-notification-only{background:#1d2938!important;color:#fff!important;border-color:#334456!important}
+
 .platform-compact-header{min-height:54px!important;padding:8px 16px!important;background:#fff!important;border-bottom:1px solid #e8edf2!important;display:flex!important;align-items:center!important;justify-content:space-between!important;box-shadow:0 3px 16px rgba(12,31,50,.05)!important}
 .header-notification-only{width:42px;height:42px;border-radius:12px;background:#fff;color:#111;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;font-size:22px;border:1px solid #e3e8ed;box-shadow:0 4px 12px rgba(0,0,0,.06)}
 .header-notification-only span{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:20px;background:#ef4444;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900}
@@ -722,7 +727,7 @@
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isDark);
             const btn = document.querySelector('.theme-toggle-small');
-            if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+            if (btn) { btn.setAttribute('aria-pressed', String(isDark)); btn.setAttribute('title', isDark ? 'الوضع النهاري' : 'الوضع الليلي'); }
         }
 
         if (localStorage.getItem('darkMode') === 'true') {
@@ -762,8 +767,9 @@
         <div style="display:flex;align-items:center;gap:10px;">
             <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" onclick="window.toggleMobileSidebar()" aria-label="فتح القائمة">☰</button>
         </div>
-        <div class="header-notification-only" onclick="window.loadSection('notifications')" aria-label="الإشعارات" title="الإشعارات">
+        <div class="student-header-actions"><button type="button" class="theme-toggle-small student-theme-toggle" onclick="window.toggleTheme()" aria-label="تغيير الوضع" title="الوضع الليلي"><span class="theme-moon">🌙</span><span class="theme-sun">☀️</span></button><div class="header-notification-only" onclick="window.loadSection('notifications')" aria-label="الإشعارات" title="الإشعارات">
             🔔 <span id="notif-count">0</span>
+        </div>
         </div>
     </div>
 

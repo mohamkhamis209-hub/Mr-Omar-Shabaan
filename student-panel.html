@@ -698,7 +698,13 @@
         body.dark-mode .course-card-new,body.dark-mode .lesson-row,body.dark-mode .course-player-card{background:#1e2430;border-color:#303947;color:#fff}body.dark-mode .course-card-body h3{color:#fff}body.dark-mode .course-back-btn{background:#1e2430}body.dark-mode .auto-play-box{background:#252d38;color:#ddd}
         @media(max-width:700px){.course-grid{grid-template-columns:1fr}.course-cover{height:185px}.lesson-row{grid-template-columns:88px 1fr}.lesson-row>div:last-child{grid-column:2}.lesson-thumb{width:88px;height:60px}.course-detail-cover{height:180px}.courses-hero h2{font-size:23px}}
 
-    </style>
+    
+        /* ===== منصتك التعليمية - الواجهة الجديدة ===== */
+        body{background:#f5f8fb;color:#162033;}
+        .sidebar{background:linear-gradient(180deg,#0b1d33 0%,#102941 100%)!important;border-left:1px solid rgba(255,255,255,.06);padding:18px 14px!important;}
+        .platform-brand{text-align:center;padding:4px 0 18px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:14px}.platform-logo{width:62px;height:62px;border-radius:18px;object-fit:cover;border:2px solid #12c98a;box-shadow:0 8px 22px rgba(0,0,0,.22)}.platform-brand-title{font-size:20px;font-weight:900;color:#fff;margin-top:9px}.platform-brand-sub{font-size:11px;color:#91a4b9;margin-top:4px}.sidebar-student-card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:11px;margin-bottom:10px;text-align:center}.sidebar-avatar{width:44px;height:44px;border-radius:50%;background:#12c98a;color:#08233a;display:flex;align-items:center;justify-content:center;margin:auto;font-size:22px;font-weight:900}.sidebar-profile-name{color:#fff!important;font-size:15px!important}.sidebar-profile-user{color:#8fa3b7!important;font-size:11px!important}.sidebar ul{margin-top:10px!important}.sidebar ul li{color:#dce7f0!important;border-radius:12px!important;font-size:14px!important;padding:12px 13px!important}.sidebar ul li:hover,.sidebar ul li.active-mobile-item{background:rgba(18,201,138,.15)!important;color:#22d99a!important;transform:none!important;border-right:3px solid #18d391}.header-bar{background:#fff!important;border-bottom:1px solid #e7edf2!important;margin-right:270px!important;padding:13px 25px!important;box-shadow:0 3px 18px rgba(14,35,55,.05);}.header-bar h2{color:#10233a!important;font-size:20px!important}.content{background:#f5f8fb;padding:24px 28px!important}.content>p{color:#758397!important}.mobile-bottom-nav{background:#0b1d33!important;border-top:1px solid rgba(255,255,255,.12)!important;box-shadow:0 -8px 24px rgba(0,0,0,.15)!important}.mobile-nav-item{color:#9eb0c2!important}.mobile-nav-item.active{color:#19d291!important}.mobile-nav-item.active .mobile-nav-icon{transform:translateY(-2px);filter:none}.mobile-nav-icon{font-size:21px!important}.courses-shell{max-width:1120px!important}.courses-hero{background:linear-gradient(135deg,#0b1d33,#123c5d 60%,#0e9f72)!important;border-radius:22px!important;padding:22px!important;box-shadow:0 14px 35px rgba(11,29,51,.14)!important}.courses-hero h2{font-size:25px!important}.course-grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))!important;gap:16px!important}.course-card-new{border-radius:20px!important;box-shadow:0 6px 22px rgba(19,43,67,.08)!important}.course-cover{height:205px!important;background:#e8f2f7!important}.course-card-body{padding:17px 18px 18px!important}.course-card-body h3{font-size:20px!important}.course-open-btn{background:linear-gradient(135deg,#0ab77f,#13c990)!important;border-radius:12px!important}.course-chip{background:#edf9f5!important;color:#0a986d!important}.lesson-row{border-radius:16px!important;box-shadow:0 4px 15px rgba(19,43,67,.05)!important}.course-player-card{border-radius:20px!important}.profile-page{max-width:850px;margin:auto}.profile-hero{background:linear-gradient(135deg,#0b1d33,#16415d);color:#fff;border-radius:22px;padding:24px;display:flex;align-items:center;gap:16px}.profile-avatar{width:68px;height:68px;border-radius:50%;background:#16ce8c;color:#08233a;display:flex;align-items:center;justify-content:center;font-size:32px}.profile-hero h2{color:#fff!important;border:0!important;margin:0!important;padding:0!important}.profile-hero p{margin:5px 0 0;color:#b9cad8}.profile-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}.profile-info-grid>div{background:#fff;border:1px solid #e7edf2;border-radius:16px;padding:15px}.profile-info-grid span{display:block;color:#8190a0;font-size:12px;margin-bottom:5px}.profile-info-grid b{color:#17283b}.profile-edit-btn{background:#10b981!important;max-width:320px}.question-fab{background:#10b981!important}
+        @media(max-width:768px){.header-bar{margin-right:0!important;padding:10px 12px!important}.content{margin-right:0!important;padding:14px 10px 90px!important}.sidebar{right:-330px!important}.sidebar.mobile-open{right:0!important}.profile-info-grid{grid-template-columns:1fr}.courses-hero{border-radius:18px!important}.course-cover{height:190px!important}}
+</style>
 </head>
 <body>
     <script>
@@ -716,10 +722,16 @@
     </script>
 
     <div class="sidebar">
-        <img src="assets/Mohamed.jpg" alt="صورة الطالب" class="admin-img">
-        <h4>مستر عمر شعبان </h4>
-        <div class="sidebar-profile-name" id="sidebarStudentName">الطالب</div>
-        <div class="sidebar-profile-user" id="sidebarStudentUser">student</div>
+        <div class="platform-brand">
+            <img src="assets/logo.jpg" alt="منصتك التعليمية" class="platform-logo">
+            <div class="platform-brand-title">منصتك التعليمية</div>
+            <div class="platform-brand-sub">تعلم • اختبر • تقدم</div>
+        </div>
+        <div class="sidebar-student-card">
+            <div class="sidebar-avatar" id="sidebarStudentAvatar">👤</div>
+            <div class="sidebar-profile-name" id="sidebarStudentName">الطالب</div>
+            <div class="sidebar-profile-user" id="sidebarStudentUser">student</div>
+        </div>
         <ul>
             <li onclick="window.loadSection('dashboard')">📊 الرئيسية</li>
             <li onclick="window.loadSection('videos')">🎬 الفيديوهات</li>
@@ -729,7 +741,7 @@
             
             <li onclick="window.loadSection('myProgress')">📊 تقدمي</li>
             
-            <li onclick="window.loadSection('founder')" style="font-weight:800;">👤 عن مؤسس المنصة</li>
+            <li onclick="window.loadSection('profile')" style="font-weight:800;">👤 حسابي</li>
             <li onclick="window.openQuestionModal()">💬 عندي سؤال</li>
         </ul>
         <button onclick="window.logoutStudent()" style="margin-top:20px; background:#e74c3c; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; font-size:16px;">🚪 خروج</button>
@@ -758,31 +770,11 @@
     <!-- شريط التنقل السفلي للموبايل -->
     <!-- ============================================ -->
     <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="التنقل الرئيسي">
-        <button type="button" class="mobile-nav-item active" data-section="dashboard" onclick="window.bottomNavGo('dashboard', this)">
-            <span class="mobile-nav-icon">🏠</span><span>الرئيسية</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="videos" onclick="window.bottomNavGo('videos', this)">
-            <span class="mobile-nav-icon">🎬</span><span>كورساتي</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="books" onclick="window.bottomNavGo('books', this)">
-            <span class="mobile-nav-icon">📚</span><span>الكتب</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="exams" onclick="window.bottomNavGo('exams', this)">
-            <span class="mobile-nav-icon">📝</span><span>امتحاناتي</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="myProgress" onclick="window.bottomNavGo('myProgress', this)">
-            <span class="mobile-nav-icon">🏅</span><span>تقدمي</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="notifications" onclick="window.bottomNavGo('notifications', this)">
-            <span class="mobile-nav-icon">🔔</span><span>الإشعارات</span>
-            <b class="mobile-nav-badge" id="mobile-notif-count">0</b>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="founder" onclick="window.bottomNavGo('founder', this)">
-            <span class="mobile-nav-icon">👤</span><span>المنصة</span>
-        </button>
-        <button type="button" class="mobile-nav-item question-nav-item" onclick="window.openQuestionModal()">
-            <span class="mobile-nav-icon">💬</span><span>عندي سؤال</span>
-        </button>
+        <button type="button" class="mobile-nav-item active" data-section="dashboard" onclick="window.bottomNavGo('dashboard', this)"><span class="mobile-nav-icon">🏠</span><span>الرئيسية</span></button>
+        <button type="button" class="mobile-nav-item" data-section="videos" onclick="window.bottomNavGo('videos', this)"><span class="mobile-nav-icon">🎬</span><span>كورساتي</span></button>
+        <button type="button" class="mobile-nav-item" data-section="exams" onclick="window.bottomNavGo('exams', this)"><span class="mobile-nav-icon">📝</span><span>امتحاناتي</span></button>
+        <button type="button" class="mobile-nav-item" data-section="myProgress" onclick="window.bottomNavGo('myProgress', this)"><span class="mobile-nav-icon">📊</span><span>تقدمي</span></button>
+        <button type="button" class="mobile-nav-item" data-section="notifications" onclick="window.bottomNavGo('notifications', this)"><span class="mobile-nav-icon">🔔</span><span>الإشعارات</span><b class="mobile-nav-badge" id="mobile-notif-count">0</b></button>
     </nav>
 
 
@@ -1814,19 +1806,7 @@
         // ============================================
         function showFounderSection() {
             const content = document.getElementById('student-content');
-            content.innerHTML = `
-              <div style="max-width:900px;margin:0 auto;">
-                <div style="background:linear-gradient(135deg,#171b3b,#4d43a8);border-radius:28px;padding:30px;color:#fff;text-align:center;box-shadow:0 18px 45px rgba(0,0,0,.16);">
-                  <img src="assets/mo.jpg" alt="م. محمد خميس" style="width:150px;height:150px;border-radius:50%;object-fit:cover;border:5px solid rgba(255,255,255,.9);box-shadow:0 12px 30px rgba(0,0,0,.25);background:#fff;">
-                  <h1 style="margin:18px 0 8px;font-size:30px;">م. محمد خميس</h1>
-                  <div style="display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:9px 18px;border-radius:999px;font-weight:800;">محلل أمن سيبراني</div>
-                </div>
-                <div style="background:#fff;border-radius:24px;padding:28px;margin-top:20px;box-shadow:0 10px 30px rgba(0,0,0,.07);line-height:2;color:#444;">
-                  <h2 style="margin-top:0;color:#252b52;">نبذة عن مؤسس المنصة</h2>
-                  <p>م. محمد خميس هو مؤسس ومطور منصتك التعليمية، ويعمل على تطوير الحلول التقنية والأنظمة التعليمية الرقمية، مع اهتمام بمجال الأمن السيبراني وحماية الأنظمة والبيانات.</p>
-                  <p style="margin-bottom:0;">الهدف من المنصة هو جمع الحصة والشرح والمتابعة والاختبارات والدرجات في نظام تعليمي واحد يساعد الطالب على متابعة مستواه بشكل مستمر.</p>
-                </div>
-              </div>`;
+            content.innerHTML = `<div style="max-width:900px;margin:0 auto"><div class="courses-hero"><h2>منصتك التعليمية</h2><p>مكان واحد للكورسات والمحاضرات والكتب والاختبارات ومتابعة تقدمك الدراسي.</p></div><div class="profile-info-grid"><div><span>الكورسات</span><b>محاضرات مرتبة حسب الصف</b></div><div><span>المحتوى</span><b>كتب واختبارات لكل كورس</b></div><div><span>الأسئلة</span><b>أسئلة خاصة وأسئلة تحت المحاضرات</b></div><div><span>المتابعة</span><b>حفظ آخر مشاهدة وتقدم الطالب</b></div></div></div>`;
         }
 
         // ============================================
@@ -2046,12 +2026,21 @@
         function startCourseProgress(videoId,player){ if(progressIntervals[videoId]) clearInterval(progressIntervals[videoId]); progressIntervals[videoId]=setInterval(async()=>{try{const cur=Math.floor(player.getCurrentTime?.()||0),dur=Math.floor(player.getDuration?.()||0);if(dur>0){await saveProgress(videoId,cur,dur);updateProgressUI(videoId,cur,dur);}}catch(e){}},5000); }
         window.toggleCourseFullscreen=function(event,videoId){event?.preventDefault();event?.stopPropagation();const el=document.getElementById(`course-video-container-${videoId}`);if(!el)return;const active=document.fullscreenElement||document.webkitFullscreenElement;if(active===el){document.exitFullscreen?.();document.webkitExitFullscreen?.();}else{el.requestFullscreen?.()||el.webkitRequestFullscreen?.();}};
 
+        function showProfileSection(){
+            const c=document.getElementById('student-content');
+            const name=localStorage.getItem('studentName')||'الطالب';
+            const code=localStorage.getItem('studentCode')||'—';
+            const grade=localStorage.getItem('studentGrade')||'—';
+            const phone=localStorage.getItem('studentPhone')||'—';
+            c.innerHTML=`<div class="profile-page"><div class="profile-hero"><div class="profile-avatar">👤</div><div><h2>حسابي</h2><p>${escapeHtml(name)}</p></div></div><div class="profile-info-grid"><div><span>الاسم</span><b>${escapeHtml(name)}</b></div><div><span>الكود</span><b>${escapeHtml(code)}</b></div><div><span>رقم الهاتف</span><b>${escapeHtml(phone)}</b></div><div><span>الصف</span><b>${escapeHtml(gradeLabel(grade))}</b></div></div><button class="profile-edit-btn" onclick="document.getElementById('profileCompletionModal').style.display='flex'">✏️ تعديل/استكمال البيانات</button></div>`;
+        }
+
         // ============================================
         // دالة تحميل الأقسام الرئيسية
         // ============================================
         async function loadSection(section) {
-            if (section === 'founder') {
-                showFounderSection();
+            if (section === 'profile') {
+                showProfileSection();
                 return;
             }
             const container = document.getElementById('student-content');
@@ -2059,7 +2048,7 @@
 
             const studentGrade = localStorage.getItem('studentGrade') || 'all';
             const code = localStorage.getItem('studentCode');
-            if (!code && section !== 'founder') {
+            if (!code && section !== 'profile') {
                 window.location.href = 'student-login.html';
                 return;
             }

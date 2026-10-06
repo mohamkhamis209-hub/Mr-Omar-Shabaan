@@ -447,7 +447,11 @@
             #printAttendanceArea { position:absolute; left:0; top:0; width:100%; }
             .no-print { display:none !important; }
         }
-    </style>
+    
+        /* ===== لوحة المشرف - نفس هوية منصتك التعليمية ===== */
+        body{background:#f5f8fb!important;color:#17283b}.sidebar{background:linear-gradient(180deg,#0b1d33,#102941)!important;padding:18px 14px!important}.platform-admin-logo{width:66px!important;height:66px!important;border-radius:18px!important;border:2px solid #12c98a!important;box-shadow:0 8px 22px rgba(0,0,0,.2)}.sidebar h3{color:#fff!important;font-weight:900!important;margin:9px 0 2px!important}.admin-role-label{text-align:center;color:#91a4b9;font-size:11px;margin-bottom:9px}.sidebar ul{margin-top:10px!important}.sidebar ul li{color:#dce7f0!important;border-radius:12px!important;font-size:14px!important;padding:12px 13px!important}.sidebar ul li:hover{background:rgba(18,201,138,.15)!important;color:#22d99a!important;transform:none!important;border-right:3px solid #18d391}.sidebar ul li.danger{color:#ff8f8f!important}.content{background:#f5f8fb!important;padding:26px 28px!important}.content>div:first-child h2{font-weight:900;color:#10233a}.dashboard-cards{gap:14px!important}.dashboard-card{border:1px solid #e5edf2!important;border-right:4px solid #10b981!important;border-radius:17px!important;box-shadow:0 7px 24px rgba(16,38,59,.06)!important;padding:18px!important}.dashboard-card .number{color:#10233a!important}.filter-bar{background:#fff!important;border:1px solid #e6edf2!important;border-radius:16px!important;box-shadow:0 5px 20px rgba(16,38,59,.04)}table{border:1px solid #e5edf2!important;border-radius:16px!important}th{background:#0b1d33!important}tr:nth-child(even){background:#f8fbfd!important}.btn-add,.btn-success{background:#10b981!important}.btn-primary,.btn-secondary{border-radius:11px!important}.grade-badge{border-radius:999px!important}.permission-box{border:1px solid #e5edf2;border-radius:14px!important}.mobile-menu-toggle{background:#0b1d33!important}.admin-section-card{background:#fff;border:1px solid #e6edf2;border-radius:18px;padding:18px;box-shadow:0 7px 24px rgba(16,38,59,.06)}
+        @media(max-width:768px){.content{margin-right:0!important;padding:16px 12px 30px!important}.sidebar{right:-330px!important}.sidebar.mobile-open{right:0!important}}
+</style>
 </head>
 <body>
     <script>
@@ -464,8 +468,9 @@
     </script>
 
     <div class="sidebar">
-        <img src="assets/Mohamed.jpg" alt="Admin" class="admin-img">
-        <h3>مرحباً بمشرف المنصه</h3>
+        <img src="assets/logo.jpg" alt="منصتك التعليمية" class="admin-img platform-admin-logo">
+        <h3>منصتك التعليمية</h3>
+        <div class="admin-role-label">لوحة المشرف</div>
         <ul>
             <li onclick="window.showSection('dashboard')" data-permission="dashboard">📊 الرئيسية</li>
             <li onclick="window.showSection('students')" data-permission="students">👨‍🎓 الطلاب</li>
@@ -1232,15 +1237,15 @@
         };
 
         async function showDashboard() {
-            const [studentsSnap, videosSnap, booksSnap, examsSnap, devicesSnap, attendanceSnap, sessionsSnap] = await Promise
+            const [studentsSnap, videosSnap, booksSnap, examsSnap, devicesSnap, regReqSnap, courseReqSnap] = await Promise
                 .all([
                     getDocs(collection(db, 'students')),
                     getDocs(collection(db, 'videos')),
                     getDocs(collection(db, 'books')),
                     getDocs(collection(db, 'exams')),
                     getDocs(query(collection(db, 'pendingDevices'), where('status', '==', 'pending'))),
-                    getDocs(collection(db, 'attendance')),
-                    getDocs(collection(db, 'sessions'))
+                    getDocs(query(collection(db, 'studentRequests'), where('status', '==', 'pending'))),
+                    getDocs(query(collection(db, 'courseAccessRequests'), where('status', '==', 'pending')))
                 ]);
 
             let totalStudents = 0,
@@ -1250,9 +1255,7 @@
             let grade1 = 0,
                 grade2 = 0,
                 grade3 = 0;
-            let todayAttendance = 0,
-                todaySessions = 0;
-            const today = new Date().toISOString().split('T')[0];
+            let todayAttendance = 0, todaySessions = 0;
 
             let allLogins = [];
             let customGradeCount = {};
@@ -1295,20 +1298,6 @@
                 if (!a.lastLogin) return 1;
                 if (!b.lastLogin) return -1;
                 return b.lastLogin - a.lastLogin;
-            });
-
-            attendanceSnap.forEach(doc => {
-                const data = doc.data();
-                if (data.date === today && data.status === 'present') {
-                    todayAttendance++;
-                }
-            });
-
-            sessionsSnap.forEach(doc => {
-                const data = doc.data();
-                if (data.date === today) {
-                    todaySessions++;
-                }
             });
 
             let studentsTableRows = allLogins.map(s => {
@@ -1368,14 +1357,14 @@
                         <div class="label">طلاب نشطون</div>
                     </div>
                     <div class="dashboard-card orange">
-                        <div class="icon">📅</div>
-                        <div class="number">${todayAttendance}</div>
-                        <div class="label">حضور اليوم</div>
+                        <div class="icon">📨</div>
+                        <div class="number">${regReqSnap.size}</div>
+                        <div class="label">طلبات تسجيل معلقة</div>
                     </div>
                     <div class="dashboard-card purple">
-                        <div class="icon">🕐</div>
-                        <div class="number">${todaySessions}</div>
-                        <div class="label">جلسات اليوم</div>
+                        <div class="icon">🎓</div>
+                        <div class="number">${courseReqSnap.size}</div>
+                        <div class="label">طلبات كورسات معلقة</div>
                     </div>
                     <div class="dashboard-card red">
                         <div class="icon">📱</div>
@@ -1397,6 +1386,14 @@
                         <div class="number">${examsSnap.size}</div>
                         <div class="label">اختبارات</div>
                     </div>
+                </div>
+
+                <div class="admin-quick-actions">
+                    <div class="admin-quick-title">إضافة محتوى جديد</div>
+                    <button onclick="window.showSection('courses')">➕ إضافة كورس</button>
+                    <button onclick="window.showSection('videos')">🎬 إضافة محاضرة</button>
+                    <button onclick="window.showSection('books')">📚 إضافة كتاب</button>
+                    <button onclick="window.showSection('exams')">📝 إضافة اختبار</button>
                 </div>
 
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px; margin-top:20px;">

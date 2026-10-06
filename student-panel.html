@@ -726,9 +726,9 @@
             <li onclick="window.loadSection('books')">📚 الكتب</li>
             <li onclick="window.loadSection('exams')">📝 الاختبارات</li>
             <li onclick="window.loadSection('notifications')">🔔 الإشعارات</li>
-            <li onclick="window.loadSection('live')">📡 البث المباشر</li>
+            
             <li onclick="window.loadSection('myProgress')">📊 تقدمي</li>
-            <li onclick="window.loadSection('centerAttendance')">📅 حضوري في السنتر</li>
+            
             <li onclick="window.loadSection('founder')" style="font-weight:800;">👤 عن مؤسس المنصة</li>
             <li onclick="window.openQuestionModal()">💬 عندي سؤال</li>
         </ul>
@@ -777,12 +777,6 @@
             <span class="mobile-nav-icon">🔔</span><span>الإشعارات</span>
             <b class="mobile-nav-badge" id="mobile-notif-count">0</b>
         </button>
-        <button type="button" class="mobile-nav-item" data-section="centerAttendance" onclick="window.bottomNavGo('centerAttendance', this)">
-            <span class="mobile-nav-icon">📅</span><span>حضوري</span>
-        </button>
-        <button type="button" class="mobile-nav-item" data-section="live" onclick="window.bottomNavGo('live', this)">
-            <span class="mobile-nav-icon">📡</span><span>البث</span>
-        </button>
         <button type="button" class="mobile-nav-item" data-section="founder" onclick="window.bottomNavGo('founder', this)">
             <span class="mobile-nav-icon">👤</span><span>المنصة</span>
         </button>
@@ -791,6 +785,24 @@
         </button>
     </nav>
 
+
+
+    <div id="profileCompletionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;padding:18px">
+      <div style="width:min(520px,100%);background:#fff;border-radius:22px;padding:22px;direction:rtl">
+        <h2 style="margin-top:0">📝 أكمل بيانات حسابك</h2><p style="color:#777;line-height:1.8">لازم تكمل البيانات الناقصة قبل استخدام المنصة. سيتم حفظها في حسابك.</p>
+        <input id="profileName" placeholder="الاسم بالكامل" style="width:100%;height:48px;margin:6px 0;padding:0 12px;border:1px solid #ddd;border-radius:12px">
+        <input id="profilePhone" placeholder="رقم الهاتف" type="tel" style="width:100%;height:48px;margin:6px 0;padding:0 12px;border:1px solid #ddd;border-radius:12px">
+        <select id="profileGrade" style="width:100%;height:48px;margin:6px 0;padding:0 12px;border:1px solid #ddd;border-radius:12px"><option value="">اختر الصف</option><option value="1">أولى ثانوي</option><option value="2">ثانية ثانوي</option><option value="3">ثالثة ثانوي</option></select>
+        <button onclick="window.saveRequiredProfile()" style="width:100%;margin-top:10px;height:50px;border:0;border-radius:13px;background:#159b68;color:#fff;font-weight:900">💾 حفظ البيانات والمتابعة</button>
+      </div>
+    </div>
+    <div id="lessonQuestionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;padding:18px">
+      <div style="width:min(520px,100%);background:#fff;border-radius:22px;padding:22px;direction:rtl">
+        <h2 style="margin-top:0">💬 سؤال تحت الدرس</h2><p id="lessonQuestionTitle" style="color:#777"></p>
+        <textarea id="lessonQuestionText" maxlength="1000" placeholder="اكتب سؤالك..." style="width:100%;min-height:130px;padding:12px;border:1px solid #ddd;border-radius:12px"></textarea>
+        <div style="display:flex;gap:10px;margin-top:12px"><button onclick="window.sendLessonQuestion()" style="flex:1;padding:12px;border:0;border-radius:12px;background:#159b68;color:#fff;font-weight:800">إرسال</button><button onclick="window.closeLessonQuestionModal()" style="padding:12px 18px;border:0;border-radius:12px">إلغاء</button></div>
+      </div>
+    </div>
     <div id="questionModal" onclick="if(event.target===this) window.closeQuestionModal()">
         <div class="question-card">
             <h2 style="margin:0 0 8px;color:#252b52;">💬 عندي سؤال</h2>
@@ -900,7 +912,7 @@
                 if (!question) { alert('⚠️ اكتب سؤالك أولاً'); input?.focus(); return; }
                 const lessonLine = currentQuestionLesson ? `\n🎬 الدرس: ${currentQuestionLesson}` : '';
             const message = `🎓 سؤال من طالب\n👤 الاسم: ${name}\n🔑 الكود: ${code}${lessonLine}\n\n💬 السؤال:\n${question}`;
-                window.open(`https://wa.me/201273981050?text=${encodeURIComponent(message)}`, '_blank');
+                window.open(`https://wa.me/201033459821?text=${encodeURIComponent(message)}`, '_blank');
                 if (input) input.value = '';
                 const modal = document.getElementById('questionModal');
                 if (modal) modal.style.display = 'none';
@@ -1087,6 +1099,23 @@
         let currentCourseState = null;
         let currentCourseVideoIndex = 0;
         let currentQuestionLesson = '';
+
+        async function ensureRequiredProfile(){
+            const code=localStorage.getItem('studentCode'); if(!code) return;
+            try{
+              const snap=await getDocs(query(collection(db,'students'),where('code','==',code))); if(snap.empty)return;
+              const d=snap.docs[0], x=d.data(); const missing=[]; if(!String(x.name||'').trim())missing.push('name'); if(!String(x.phone||'').trim())missing.push('phone'); if(!String(x.grade||'').trim())missing.push('grade');
+              if(!missing.length){localStorage.setItem('studentName',x.name||'');localStorage.setItem('studentGrade',x.grade||'all');return;}
+              document.getElementById('profileName').value=x.name||''; document.getElementById('profilePhone').value=x.phone||''; document.getElementById('profileGrade').value=x.grade||''; document.getElementById('profileCompletionModal').style.display='flex';
+            }catch(e){console.warn('profile check',e);}
+        }
+        window.saveRequiredProfile=async function(){
+            const code=localStorage.getItem('studentCode')||''; const name=document.getElementById('profileName').value.trim(); const phone=document.getElementById('profilePhone').value.trim(); const grade=document.getElementById('profileGrade').value;
+            if(!name||!phone||!grade)return alert('⚠️ يجب إكمال الاسم والرقم والصف');
+            const dup=await getDocs(query(collection(db,'students'),where('phone','==',phone))); if(!dup.empty && dup.docs[0].data().code!==code)return alert('⚠️ رقم الهاتف مستخدم بالفعل');
+            const snap=await getDocs(query(collection(db,'students'),where('code','==',code))); if(snap.empty)return; await updateDoc(snap.docs[0].ref,{name,phone,grade,profileComplete:true,updatedAt:serverTimestamp()}); localStorage.setItem('studentName',name);localStorage.setItem('studentGrade',grade);document.getElementById('profileCompletionModal').style.display='none'; alert('✅ تم حفظ بياناتك'); location.reload();
+        };
+        setTimeout(ensureRequiredProfile,300);
 
         // ============================================
         // دالة استخراج معرف الفيديو من رابط يوتيوب
@@ -1794,7 +1823,7 @@
                 </div>
                 <div style="background:#fff;border-radius:24px;padding:28px;margin-top:20px;box-shadow:0 10px 30px rgba(0,0,0,.07);line-height:2;color:#444;">
                   <h2 style="margin-top:0;color:#252b52;">نبذة عن مؤسس المنصة</h2>
-                  <p>م. محمد خميس هو مؤسس ومطور منصة مستر عمر شعبان، ويعمل على تطوير الحلول التقنية والأنظمة التعليمية الرقمية، مع اهتمام بمجال الأمن السيبراني وحماية الأنظمة والبيانات.</p>
+                  <p>م. محمد خميس هو مؤسس ومطور منصتك التعليمية، ويعمل على تطوير الحلول التقنية والأنظمة التعليمية الرقمية، مع اهتمام بمجال الأمن السيبراني وحماية الأنظمة والبيانات.</p>
                   <p style="margin-bottom:0;">الهدف من المنصة هو جمع الحصة والشرح والمتابعة والاختبارات والدرجات في نظام تعليمي واحد يساعد الطالب على متابعة مستواه بشكل مستمر.</p>
                 </div>
               </div>`;
@@ -1803,7 +1832,18 @@
         // ============================================
         // دوال سؤال الطالب عبر واتساب
         // ============================================
-        const SUPERVISOR_WHATSAPP = '201273981050';
+        let currentLessonQuestionVideoId='';
+        function showLessonQuestionsUnderPlayer(videoId){
+            const box=document.getElementById('lesson-questions-'+videoId); if(!box) return;
+            getDocs(query(collection(db,'lessonQuestions'),where('videoId','==',videoId))).then(snap=>{
+              const rows=[]; snap.forEach(d=>rows.push({id:d.id,...d.data()})); rows.sort((a,b)=>contentTime(a)-contentTime(b));
+              box.innerHTML=rows.length?rows.map(x=>`<div style="padding:12px 0;border-bottom:1px solid #eee"><b>👤 ${escCourse(x.studentName||'طالب')}</b><p style="margin:6px 0">${escCourse(x.question)}</p>${x.answer?`<div style="background:#effaf5;border-right:4px solid #12a56b;padding:9px;border-radius:10px"><b>${x.answerPinned?'📌 إجابة المشرف':'👨‍🏫 المشرف'}</b><div>${escCourse(x.answer)}</div></div>`:''}</div>`).join(''):'<div style="color:#888">لا توجد أسئلة بعد. كن أول من يسأل.</div>';
+            }).catch(()=>{box.innerHTML='<div style="color:#888">تعذر تحميل الأسئلة.</div>';});
+        }
+        window.openLessonQuestionModal=function(videoId,title){currentLessonQuestionVideoId=videoId;document.getElementById('lessonQuestionTitle').textContent='الدرس: '+title;document.getElementById('lessonQuestionText').value='';document.getElementById('lessonQuestionModal').style.display='flex';};
+        window.closeLessonQuestionModal=function(){document.getElementById('lessonQuestionModal').style.display='none';};
+        window.sendLessonQuestion=async function(){const q=document.getElementById('lessonQuestionText').value.trim(); if(!q)return alert('اكتب سؤالك أولاً'); const code=localStorage.getItem('studentCode')||''; const name=localStorage.getItem('studentName')||'طالب'; const videoId=currentLessonQuestionVideoId; if(!videoId)return; const dup=await getDocs(query(collection(db,'lessonQuestions'),where('studentCode','==',code),where('videoId','==',videoId),where('question','==',q))); if(!dup.empty)return alert('⚠️ أرسلت نفس السؤال من قبل'); const title=document.getElementById('lessonQuestionTitle').textContent.replace('الدرس: ',''); await addDoc(collection(db,'lessonQuestions'),{studentCode:code,studentName:name,videoId,lessonTitle:title,question:q,answer:'',answerPinned:false,createdAt:serverTimestamp()}); window.closeLessonQuestionModal(); showLessonQuestionsUnderPlayer(videoId); alert('✅ تم نشر سؤالك تحت الدرس');};
+        const SUPERVISOR_WHATSAPP = '201033459821';
 
         function openQuestionModal(lessonTitle = '') {
             const modal = document.getElementById('questionModal');
@@ -1875,10 +1915,14 @@
                     if (!data.grade || data.grade==='all' || data.grade===studentGrade) courseDocs.push({id:d.id,data});
                 });
             } catch(e) { console.warn('تعذر تحميل الكورسات:',e); }
+            const access={};
+            if(studentCode){
+                try{ const accessSnap=await getDocs(query(collection(db,'courseAccessRequests'),where('studentCode','==',studentCode))); accessSnap.forEach(d=>{const x=d.data();access[x.courseId]=x.status;}); }catch(e){console.warn('تعذر تحميل طلبات الكورسات',e);}
+            }
             const courses=[];
             courseDocs.forEach(c=>{
                 const vids=videos.filter(v=>v.data.courseId===c.id);
-                courses.push({id:c.id,data:c.data,videos:vids});
+                courses.push({id:c.id,data:c.data,videos:vids,accessStatus:access[c.id]||'none'});
             });
             const uncategorized=videos.filter(v=>!v.data.courseId);
             const grouped={};
@@ -1899,14 +1943,21 @@
                         imageUrl:first.courseImage || ''
                     },
                     videos:vids,
+                    accessStatus:'approved',
                     legacy:true
                 });
             });
             return courses.filter(c=>c.videos.length>0 || !c.legacy);
         }
+        window.requestCourseAccess=async function(courseId,courseName){
+            const code=localStorage.getItem('studentCode')||'', name=localStorage.getItem('studentName')||'طالب', grade=localStorage.getItem('studentGrade')||'all';
+            const dup=await getDocs(query(collection(db,'courseAccessRequests'),where('studentCode','==',code),where('courseId','==',courseId))); if(!dup.empty){const st=dup.docs[0].data().status; if(st==='pending')return alert('⏳ طلبك قيد المراجعة بالفعل'); if(st==='approved')return alert('✅ أنت مشترك بالفعل');}
+            await addDoc(collection(db,'courseAccessRequests'),{studentCode:code,studentName:name,grade,courseId,courseName,status:'pending',createdAt:serverTimestamp()}); alert('✅ تم إرسال طلب دخول الكورس للمشرف'); await showCoursesHome(document.getElementById('student-content'),grade);
+        };
         window.openCourse = async function(courseId, studentGrade) {
             const courses = await buildCourses(studentGrade || localStorage.getItem('studentGrade') || 'all');
             currentCourseState = courses.find(c=>c.id===courseId) || null;
+            if(currentCourseState && !String(courseId).startsWith('legacy-') && currentCourseState.accessStatus!=='approved'){ alert('🔐 يجب موافقة المشرف على دخول هذا الكورس أولاً.'); return; }
             if(!currentCourseState) return alert('الكورس غير موجود');
             await loadSection('courseDetail');
         };
@@ -1920,12 +1971,12 @@
             } else {
                 for(const c of courses){
                     const first=c.videos[0]; const d=c.data||{}; const image=getCourseImage(d,first);
-                    html+=`<article class="course-card-new" onclick="window.openCourse('${escCourse(c.id)}','${escCourse(studentGrade)}')">
+                    html+=`<article class="course-card-new">
                         <div class="course-cover">${image?`<img src="${escCourse(image)}" alt="${escCourse(d.name||'الكورس')}" loading="lazy">`:`<div class="course-cover-fallback">🎓</div>`}</div>
                         <div class="course-card-body"><h3>${escCourse(d.name||'كورس تعليمي')}</h3>
                         <div class="course-meta"><span class="course-chip">📚 ${escCourse(d.subject||'المادة')}</span><span class="course-chip">🎓 ${escCourse(gradeLabel(d.grade||studentGrade))}</span><span class="course-chip">📖 ${c.videos.length} درس</span><span class="course-chip">🎥 ${c.videos.length} فيديو</span></div>
                         <div class="course-desc">${escCourse(d.description||'ابدأ الكورس وشاهد الدروس بالترتيب.')}</div>
-                        <button class="course-open-btn" type="button">افتح الكورس</button></div></article>`;
+                        ${c.accessStatus==='approved'?`<button class="course-open-btn" type="button" onclick="window.openCourse('${escCourse(c.id)}','${escCourse(studentGrade)}')">افتح الكورس</button>`:c.accessStatus==='pending'?`<button class="course-open-btn" type="button" disabled>⏳ الطلب قيد المراجعة</button>`:`<button class="course-open-btn" type="button" onclick="window.requestCourseAccess('${escCourse(c.id)}','${escCourse(d.name||'الكورس')}')">🔐 اطلب دخول الكورس</button>`}</div></article>`;
                 }
             }
             html+=`</div></div>`; container.innerHTML=html;
@@ -1978,7 +2029,8 @@
                   <div style="position:absolute;bottom:10px;right:10px;z-index:10;color:rgba(255,255,255,.35);font-size:11px;pointer-events:none;background:rgba(0,0,0,.3);padding:4px 9px;border-radius:4px">${escCourse(studentName)} • ${escCourse(studentCode)}</div>
                 </div>
                 <div class="progress-info" id="course-progress-info-${v.id}"><div class="progress-bar"><div class="progress-fill" id="progress-fill-${v.id}" style="width:0%"></div></div><p id="progress-text-${v.id}">⏳ جاري التحميل...</p></div>
-                <div class="course-player-nav"><button class="btn-soft" onclick="window.playCourseVideo(${index-1})" ${index===0?'disabled':''}>‹ الفيديو السابق</button><button class="lesson-discuss-btn" onclick="window.openQuestionModal(${JSON.stringify(d.title||'الدرس')})">💬 مناقشة الدرس</button><button class="btn-green" onclick="window.playCourseVideo(${index+1})" ${index===courseVideosState.length-1?'disabled':''}>الفيديو التالي ›</button></div>`;
+                <div class="course-player-nav"><button class="btn-soft" onclick="window.playCourseVideo(${index-1})" ${index===0?'disabled':''}>‹ الفيديو السابق</button><button class="lesson-discuss-btn" onclick="window.openLessonQuestionModal(${JSON.stringify(v.id)},${JSON.stringify(d.title||'الدرس')})">💬 سؤال تحت الدرس</button><button class="btn-green" onclick="window.playCourseVideo(${index+1})" ${index===courseVideosState.length-1?'disabled':''}>الفيديو التالي ›</button></div><div id="lesson-questions-${v.id}" style="margin-top:14px;background:#fff;border-radius:16px;padding:14px"><h4 style="margin-top:0">💬 أسئلة الطلاب</h4><div>جاري تحميل الأسئلة...</div></div>`;
+            showLessonQuestionsUnderPlayer(v.id);
             card.scrollIntoView({behavior:'smooth',block:'start'});
             if(window.coursePlayer) try{window.coursePlayer.destroy()}catch(e){}
             const create=()=>{
@@ -2356,200 +2408,7 @@
                     container.innerHTML = `<p style="color:red;">حدث خطأ في تحميل الإشعارات</p>`;
                 }
             }
-            
-            // ============================================
-            // البث المباشر
-            // ============================================
-            else if (section === 'live') {
-                container.innerHTML = `<h2>⏳ جاري تحميل البث...</h2>`;
-                try {
-                    const docRef = doc(db, 'settings', 'live');
-                    const docSnap = await getDoc(docRef);
-                    const liveUrl = docSnap.exists() ? docSnap.data().url : '';
 
-                    if (liveUrl) {
-                        container.innerHTML = `
-                            <h2>📡 البث المباشر</h2>
-                            <div style="text-align:center; margin-top:20px;">
-                                <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:15px; background:#000;">
-                                    <iframe style="position:absolute; top:0; left:0; width:100%; height:100%;" 
-                                            src="${liveUrl}" 
-                                            frameborder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                            allowfullscreen>
-                                    </iframe>
-                                </div>
-                                <p style="margin-top:15px; color:#888; font-size:16px;">🔴 البث المباشر الآن - اضغط Play للمشاهدة</p>
-                            </div>
-                        `;
-                    } else {
-                        container.innerHTML = `
-                            <h2>📡 البث المباشر</h2>
-                            <div style="text-align:center; padding:50px; background:white; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-top:20px;">
-                                <p style="font-size:48px;">📺</p>
-                                <p style="font-size:18px; color:#888;">لا يوجد بث مباشر حالياً</p>
-                                <p style="color:#aaa;">تواصل مع المشرف لمعرفة مواعيد البث</p>
-                            </div>
-                        `;
-                    }
-                } catch(e) {
-                    console.error('خطأ في تحميل البث:', e);
-                    container.innerHTML = `<p style="color:red;">حدث خطأ في تحميل البث</p>`;
-                }
-            }
-            
-            // ============================================
-            // حضور السنتر
-            // ============================================
-            else if (section === 'centerAttendance') {
-                try {
-                    const attSnap = await getDocs(query(
-                        collection(db,'centerAttendance'),
-                        where('studentCode','==',code)
-                    ));
-                    const groupsSnap = await getDocs(collection(db,'groups'));
-                    const groupMap = {};
-                    groupsSnap.forEach(d => groupMap[d.id] = d.data());
-
-                    const rows = [];
-                    attSnap.forEach(d => {
-                        const data = d.data();
-                        if (data.groupId && !groupMap[data.groupId]) return;
-                        rows.push(data);
-                    });
-                    rows.sort((a,b) => String(b.date||'').localeCompare(String(a.date||'')));
-
-                    let present = rows.filter(r=>r.status==='present').length;
-                    let html = `<h2>📅 حضوري في السنتر</h2>
-                        <div class="dashboard-stats">
-                          <div class="stat-card"><div class="icon">📚</div><div class="number">${rows.length}</div><div class="label">إجمالي الحصص</div></div>
-                          <div class="stat-card"><div class="icon">✅</div><div class="number">${present}</div><div class="label">حضور</div></div>
-                          <div class="stat-card"><div class="icon">❌</div><div class="number">${rows.length-present}</div><div class="label">غياب</div></div>
-                        </div>
-                        <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:white;">
-                        <tr><th>التاريخ</th><th>المجموعة</th><th>الحصة</th><th>الحالة</th></tr>`;
-                    if (!rows.length) html += `<tr><td colspan="4">لا يوجد سجل حضور للسنتر حتى الآن</td></tr>`;
-                    rows.forEach(r => {
-                        html += `<tr><td>${r.date||'—'}</td><td>${r.groupName||groupMap[r.groupId]?.name||'—'}</td>
-                            <td>${r.topic||'حصة'}</td><td>${r.status==='present'?'✅ حاضر':'❌ غائب'}</td></tr>`;
-                    });
-                    html += `</table></div>`;
-                    container.innerHTML = html;
-                } catch(e) {
-                    console.error(e);
-                    container.innerHTML = `<p style="color:red">حدث خطأ في تحميل حضور السنتر</p>`;
-                }
-            }
-
-            // ============================================
-            // الشارات والمكافآت
-            // ============================================
-            else if (section === 'badges') {
-                try {
-                    const progressSnap = await getDocs(query(collection(db, 'progress'), where('studentCode', '==', code)));
-                    let watchedCount = 0;
-                    progressSnap.forEach(d => {
-                        const data = d.data();
-                        if (data.watchedSeconds > 0) watchedCount++;
-                    });
-
-                    const booksSnap = await getDocs(query(collection(db, 'books'), where('grade', 'in', [studentGrade, 'all'])));
-                    let booksCount = booksSnap.size;
-
-                    const unlockedBadges = [];
-                    
-                    try {
-                        const q = query(collection(db, 'students'), where('code', '==', code));
-                        const studentSnap = await getDocs(q);
-                        if (!studentSnap.empty) {
-                            const studentData = studentSnap.docs[0].data();
-                            if (studentData.firstLogin) {
-                                unlockedBadges.push('first_login');
-                            }
-                        }
-                    } catch(e) {}
-                    
-                    if (watchedCount >= 5) unlockedBadges.push('watcher_5');
-                    if (watchedCount >= 10) unlockedBadges.push('watcher_10');
-                    if (watchedCount >= 20) unlockedBadges.push('watcher_20');
-                    if (booksCount >= 3) unlockedBadges.push('book_reader');
-
-                    let html = `<h2>🏅 الشارات والمكافآت</h2>
-                                <p style="font-size:16px; color:#666; margin-bottom:20px;">اجمع الشارات كلما تقدمت في المنصة!</p>
-                                <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-bottom:20px;">
-                                    <h3>⭐ نقاطك: <span id="badgePoints">0</span></h3>
-                                    <p style="color:#888;">كل فيديو تشاهده = 10 نقاط</p>
-                                    <p style="color:#888; font-size:14px;">الفيديوهات المشاهدة: ${watchedCount}</p>
-                                </div>
-                                <div class="badge-container">`;
-                    
-                    for (const [key, badge] of Object.entries(BADGES)) {
-                        const unlocked = unlockedBadges.includes(key);
-                        html += `
-                            <div class="badge-item ${unlocked ? 'unlocked' : 'locked'}">
-                                <div class="icon">${badge.icon}</div>
-                                <div class="name">${badge.name}</div>
-                                <div class="desc">${badge.desc}</div>
-                                ${unlocked ? '<div style="color:#27ae60; font-size:12px;">✅ مفتوحة</div>' : '<div style="color:#888; font-size:12px;">🔒 مقفلة</div>'}
-                            </div>
-                        `;
-                    }
-                    
-                    html += `</div>`;
-                    container.innerHTML = html;
-                    document.getElementById('badgePoints').innerText = points;
-                } catch (error) {
-                    console.error('خطأ في تحميل الشارات:', error);
-                    container.innerHTML = `<p style="color:red;">حدث خطأ في تحميل الشارات</p>`;
-                }
-            }
-            
-            // ============================================
-            // لوحة المتصدرين
-            // ============================================
-            else if (section === 'leaderboard') {
-                try {
-                    const leaderboardSnap = await getDocs(query(collection(db, 'leaderboard'), where('grade', 'in', [studentGrade, 'all'])));
-                    const leaderboard = [];
-                    leaderboardSnap.forEach(d => {
-                        leaderboard.push(d.data());
-                    });
-                    leaderboard.sort((a, b) => a.rank - b.rank);
-
-                    let html = `<h2>🏆 لوحة المتصدرين</h2>
-                                <p style="color:#888; margin-bottom:20px;">ترتيب الطلاب حسب النقاط</p>
-                                <div style="max-height:500px; overflow-y:auto;">`;
-                    
-                    if (leaderboard.length === 0) {
-                        html += `<p>لا يوجد طلاب مسجلين</p>`;
-                    } else {
-                        leaderboard.forEach((item, index) => {
-                            const rank = index + 1;
-                            const isTop = rank <= 3;
-                            const topClass = rank === 1 ? 'top1' : rank === 2 ? 'top2' : rank === 3 ? 'top3' : '';
-                            const medals = ['🥇', '🥈', '🥉'];
-                            const icon = isTop ? medals[rank-1] : `#${rank}`;
-                            const isMe = item.code === code;
-                            
-                            html += `
-                                <div class="leaderboard-item ${topClass}" style="${isMe ? 'border-right: 4px solid #e74c3c; background: #fff0f0;' : ''}">
-                                    <div class="rank">${icon}</div>
-                                    <div class="name">
-                                        ${item.name} ${isMe ? '👈 (أنت)' : ''}
-                                        <span style="color:#888; font-size:12px;">(${item.grade === '1' ? 'أولى ث' : item.grade === '2' ? 'ثانية ث' : item.grade === '3' ? 'ثالثة ث' : '—'})</span>
-                                    </div>
-                                    <div class="points">⭐ ${item.points || 0}</div>
-                                </div>
-                            `;
-                        });
-                    }
-                    html += `</div>`;
-                    container.innerHTML = html;
-                } catch (error) {
-                    console.error('خطأ في تحميل المتصدرين:', error);
-                    container.innerHTML = `<p style="color:red;">حدث خطأ في تحميل المتصدرين</p>`;
-                }
-            }
             
             // ============================================
             // تقدمي الشخصي

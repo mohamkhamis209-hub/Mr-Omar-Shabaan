@@ -469,23 +469,26 @@
         <ul>
             <li onclick="window.showSection('dashboard')" data-permission="dashboard">📊 الرئيسية</li>
             <li onclick="window.showSection('students')" data-permission="students">👨‍🎓 الطلاب</li>
+            <li onclick="window.showSection('registrationRequests')" data-permission="registrationRequests">📨 طلبات التسجيل</li>
+            <li onclick="window.showSection('courseRequests')" data-permission="courseRequests">🎓 طلبات دخول الكورسات</li>
+            <li onclick="window.showSection('lessonQuestions')" data-permission="lessonQuestions">💬 أسئلة الدروس</li>
             <li onclick="window.showSection('courses')" data-permission="courses">🎓 الكورسات</li>
             <li onclick="window.showSection('videos')" data-permission="videos">🎬 الفيديوهات</li>
             <li onclick="window.showSection('books')" data-permission="books">📚 الكتب</li>
             <li onclick="window.showSection('exams')" data-permission="exams">📝 الاختبارات</li>
             <li onclick="window.showSection('notifications')" data-permission="notifications">🔔 الإشعارات</li>
-            <li onclick="window.showSection('devices')" data-permission="devices">📱 طلبات الأجهزة</li>
-            <li onclick="window.showSection('progress')" data-permission="progress">📊 تقدم الطلاب</li>
-            <li onclick="window.showSection('allDevices')" data-permission="allDevices">📱 إدارة الأجهزة</li>
-            <li onclick="window.showSection('liveSettings')" data-permission="liveSettings">📡 إعدادات البث</li>
-            <li onclick="window.showSection('reports')" data-permission="reports">📊 التقارير</li>
-            <li onclick="showSection('groups')" data-permission="groups">👥 المجموعات والسنتر</li>
-            <li onclick="window.showSection('attendance')" data-permission="attendance">📅 حضور السنتر</li>
-            <li onclick="window.showSection('parentReports')" data-permission="parentReports">👨‍👩‍👦 تقارير أولياء الأمور</li>
-            <li onclick="window.showSection('examGrades')" data-permission="examGrades">📝 درجات امتحانات الطلاب</li>
-            <li onclick="window.showSection('advancedStats')" data-permission="advancedStats">📈 إحصائيات متقدمة</li>
-            <li onclick="window.showSection('sessions')" data-permission="sessions">🕐 جلسات الطلاب</li>
-            <li onclick="window.showSection('fees')" data-permission="fees">💰 المصروفات</li>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             <li onclick="showSection('assistants')" data-primary-only="true">👨‍💼 المشرفون المساعدون</li>
             <li onclick="window.showSection('dangerZone')" data-permission="dangerZone" class="danger">⚠️ منطقة الخطر</li>
             <li onclick="window.logoutAdmin()" style="color:#e74c3c;">🚪 خروج</li>
@@ -609,12 +612,8 @@
         }
 
         const ASSISTANT_PERMISSIONS = [
-            ['dashboard','الرئيسية'],['students','الطلاب'],['groups','المجموعات والسنتر'],
-            ['courses','الكورسات'],['attendance','حضور السنتر'],['parentReports','تقارير أولياء الأمور'],['examGrades','درجات امتحانات الطلاب'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],
-            ['notifications','الإشعارات'],['devices','طلبات الأجهزة'],['progress','تقدم الطلاب'],
-            ['allDevices','إدارة الأجهزة'],['liveSettings','إعدادات البث'],['reports','التقارير'],
-            ['advancedStats','الإحصائيات'],
-            ['sessions','جلسات الطلاب'],['fees','المصروفات']
+            ['dashboard','الرئيسية'],['students','الطلاب'],['registrationRequests','طلبات التسجيل'],['courseRequests','طلبات دخول الكورسات'],['lessonQuestions','أسئلة الدروس'],
+            ['courses','الكورسات'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],['notifications','الإشعارات'],['progress','تقدم الطلاب']
         ];
 
         window.showAssistantManagement = async function() {
@@ -685,6 +684,49 @@
             await deleteDoc(doc(db,'assistantAdmins',id));
             window.showAssistantManagement();
         };
+
+
+        // ============================================
+        // طلبات التسجيل + طلبات دخول الكورسات + أسئلة الدروس
+        // ============================================
+        window.showRegistrationRequests = async function(){
+            if(!requirePermission('registrationRequests')) return;
+            const snap=await getDocs(query(collection(db,'studentRequests'),where('status','==','pending')));
+            let html=`<h2>📨 طلبات تسجيل الطلاب</h2><p style="color:#777">راجع البيانات ثم وافق بكود عشوائي أو اكتب كودًا بنفسك.</p><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;background:#fff"><tr><th>الاسم</th><th>الرقم</th><th>الصف</th><th>التاريخ</th><th>الإجراء</th></tr>`;
+            if(snap.empty) html+=`<tr><td colspan="5" style="padding:25px;text-align:center">لا توجد طلبات معلقة</td></tr>`;
+            snap.forEach(d=>{const x=d.data(); html+=`<tr><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.phone)}</td><td>${escapeHtml(x.grade)}</td><td>${contentTime(x)?new Date(contentTime(x)).toLocaleString('ar-EG'):'—'}</td><td><button class="btn-sm btn-success" onclick="approveRegistration('${d.id}','random')">✅ موافقة + كود عشوائي</button> <button class="btn-sm btn-edit" onclick="approveRegistration('${d.id}','manual')">✍️ موافقة + كود أكتبه</button> <button class="btn-sm btn-danger" onclick="rejectRegistration('${d.id}')">🗑️ رفض</button></td></tr>`});
+            html+='</table></div>'; document.getElementById('content-area').innerHTML=html;
+        };
+        window.approveRegistration=async function(id,mode){
+            const refReq=doc(db,'studentRequests',id), req=await getDoc(refReq); if(!req.exists()) return alert('الطلب غير موجود'); const r=req.data();
+            let code=mode==='random'?generateCode():prompt('اكتب كود الطالب:',''); if(!code) return; code=String(code).trim().toUpperCase();
+            const cq=query(collection(db,'students'),where('code','==',code)); if(!(await getDocs(cq)).empty) return alert('الكود مستخدم بالفعل');
+            const pq=query(collection(db,'students'),where('phone','==',r.phone)); if(!(await getDocs(pq)).empty) return alert('هذا الرقم أصبح مسجلًا بالفعل');
+            await addDoc(collection(db,'students'),{name:r.name,phone:r.phone,grade:r.grade,code,status:'inactive',deviceIds:[],firstLogin:null,lastLogin:null,registeredAt:serverTimestamp(),profileComplete:!!(r.name&&r.phone&&r.grade)});
+            await updateDoc(refReq,{status:'approved',approvedAt:serverTimestamp(),approvedCode:code,approvedBy:adminName});
+            alert(`✅ تمت الموافقة. كود الطالب: ${code}`); window.showRegistrationRequests();
+        };
+        window.rejectRegistration=async function(id){ if(!confirm('رفض طلب التسجيل؟')) return; await updateDoc(doc(db,'studentRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName}); window.showRegistrationRequests(); };
+
+        window.showCourseRequests=async function(){
+            if(!requirePermission('courseRequests')) return; const snap=await getDocs(query(collection(db,'courseAccessRequests'),where('status','==','pending')));
+            const coursesSnap=await getDocs(collection(db,'courses')); const cm={}; coursesSnap.forEach(d=>cm[d.id]=d.data());
+            let html=`<h2>🎓 طلبات دخول الكورسات</h2><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;background:#fff"><tr><th>الطالب</th><th>الكورس</th><th>الصف</th><th>الإجراء</th></tr>`;
+            if(snap.empty) html+=`<tr><td colspan="4" style="padding:25px;text-align:center">لا توجد طلبات معلقة</td></tr>`;
+            snap.forEach(d=>{const x=d.data(); html+=`<tr><td>${escapeHtml(x.studentName||x.studentCode)}</td><td>${escapeHtml(cm[x.courseId]?.name||x.courseId)}</td><td>${escapeHtml(x.grade||'')}</td><td><button class="btn-sm btn-success" onclick="approveCourseRequest('${d.id}')">✅ موافقة</button> <button class="btn-sm btn-danger" onclick="rejectCourseRequest('${d.id}')">🗑️ رفض</button></td></tr>`});
+            html+='</table></div>'; document.getElementById('content-area').innerHTML=html;
+        };
+        window.approveCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:adminName});alert('✅ تمت الموافقة على دخول الكورس');window.showCourseRequests();};
+        window.rejectCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName});window.showCourseRequests();};
+
+        window.showLessonQuestions=async function(){
+            if(!requirePermission('lessonQuestions')) return; const snap=await getDocs(collection(db,'lessonQuestions')); const rows=[]; snap.forEach(d=>rows.push({id:d.id,...d.data()})); rows.sort((a,b)=>contentTime(b)-contentTime(a));
+            let html=`<h2>💬 أسئلة الدروس</h2><p style="color:#777">الأسئلة هنا عامة تحت الدرس. إجابة المشرف يمكن تثبيتها لتظهر مميزة.</p>`;
+            if(!rows.length) html+='<p>لا توجد أسئلة.</p>';
+            rows.forEach(x=>{html+=`<div style="background:#fff;border-radius:16px;padding:16px;margin:12px 0;border:1px solid #eee"><b>👤 ${escapeHtml(x.studentName||x.studentCode)}</b> <span style="color:#888">— ${escapeHtml(x.lessonTitle||'درس')}</span><p>${escapeHtml(x.question)}</p>${x.answer?`<div style="background:#f0f8f5;padding:12px;border-radius:12px"><b>${x.answerPinned?'📌 إجابة المشرف المثبتة':'👨‍🏫 إجابة المشرف'}</b><div>${escapeHtml(x.answer)}</div></div>`:''}<textarea id="ans_${x.id}" placeholder="اكتب إجابة المشرف..." style="width:100%;min-height:70px;margin:8px 0;padding:10px;border:1px solid #ddd;border-radius:10px">${escapeHtml(x.answer||'')}</textarea><label><input type="checkbox" id="pin_${x.id}" ${x.answerPinned?'checked':''}> تثبيت الإجابة</label> <button class="btn-sm btn-success" onclick="answerLessonQuestion('${x.id}')">💾 حفظ الإجابة</button></div>`});
+            document.getElementById('content-area').innerHTML=html;
+        };
+        window.answerLessonQuestion=async function(id){const answer=document.getElementById('ans_'+id)?.value.trim()||''; const answerPinned=!!document.getElementById('pin_'+id)?.checked; await updateDoc(doc(db,'lessonQuestions',id),{answer,answerPinned,answeredAt:serverTimestamp(),answeredBy:adminName}); alert('✅ تم حفظ الإجابة'); window.showLessonQuestions();};
 
         async function getGroups() {
             const snap=await getDocs(collection(db,'groups'));
@@ -983,7 +1025,7 @@
                     <body>
                         <div class="print-header">
                             <h1>📋 كشف حضور وغياب السنتر</h1>
-                            <div class="sub">منصة مستر عمر شعبان</div>
+                            <div class="sub">منصتك التعليمية</div>
                         </div>
                         
                         <div class="info-row">
@@ -1154,11 +1196,7 @@
 
         window.showSection = function(section) {
             const permissionMap = {
-                dashboard:'dashboard', students:'students', courses:'courses', videos:'videos', books:'books',
-                exams:'exams', notifications:'notifications', devices:'devices', progress:'progress',
-                allDevices:'allDevices', liveSettings:'liveSettings', reports:'reports',
-                attendance:'attendance', groups:'groups', parentReports:'parentReports', examGrades:'examGrades',
-                advancedStats:'advancedStats', sessions:'sessions', fees:'fees', dangerZone:'dangerZone'
+                dashboard:'dashboard', students:'students', registrationRequests:'registrationRequests', courseRequests:'courseRequests', lessonQuestions:'lessonQuestions', courses:'courses', videos:'videos', books:'books', exams:'exams', notifications:'notifications', dangerZone:'dangerZone'
             };
             if (section !== 'assistants' && !requirePermission(permissionMap[section] || section)) return;
             if (section === 'assistants' && !isPrimaryAdmin()) return alert('⛔ هذا القسم للمشرف الأساسي فقط');
@@ -1167,6 +1205,9 @@
             switch (section) {
                 case 'dashboard': showDashboard(); break;
                 case 'students': window.showStudents(); break;
+                case 'registrationRequests': window.showRegistrationRequests(); break;
+                case 'courseRequests': window.showCourseRequests(); break;
+                case 'lessonQuestions': window.showLessonQuestions(); break;
                 case 'courses': window.showCourses(); break;
                 case 'videos': window.showVideos(); break;
                 case 'books': window.showBooks(); break;
@@ -1826,18 +1867,17 @@
         window.addStudent = async function() {
             const name = document.getElementById('stName').value.trim();
             const phone = document.getElementById('stPhone').value.trim();
-            const parentPhone = document.getElementById('stParentPhone').value.trim();
             const grade = document.getElementById('stGrade').value;
-            const groupId = document.getElementById('stGroup')?.value || '';
-            if (!name || !phone || !parentPhone) return alert('أدخل جميع البيانات');
-            const code = generateCode();
+            if (!name || !phone || !grade) return alert('أدخل الاسم والرقم والصف');
+            const code = document.getElementById('stCode')?.value.trim() || generateCode();
+            if(code){ const cq=query(collection(db,'students'),where('code','==',code)); if(!(await getDocs(cq)).empty) return alert('⚠️ الكود مستخدم بالفعل'); }
+            const pq=query(collection(db,'students'),where('phone','==',phone)); if(!(await getDocs(pq)).empty) return alert('⚠️ رقم الهاتف مسجل بالفعل');
             await addDoc(collection(db, 'students'), {
                 name,
                 code,
                 phone,
-                parentPhone,
                 grade: grade,
-                groupIds: groupId ? [groupId] : [],
+                groupIds: [],
                 status: 'inactive',
                 suspendMessage: '',
                 deviceIds: [],
@@ -1926,7 +1966,7 @@
 
         window.showStudents = async function() {
             await getGrades();
-            const studentGroups = await getGroups();
+            const studentGroups = [];
             const gradeFilter = document.getElementById('filterGrade')?.value || 'all';
             const searchTerm = document.getElementById('searchStudent')?.value?.trim()?.toLowerCase() || '';
 
@@ -1975,13 +2015,9 @@
                         <div class="filter-bar">
                             <input id="stName" placeholder="اسم الطالب" style="flex:1; min-width:120px;">
                             <input id="stPhone" placeholder="رقم التليفون" style="flex:1; min-width:120px;">
-                            <input id="stParentPhone" placeholder="رقم ولي الأمر" style="flex:1; min-width:120px;">
+                            <input id="stCode" placeholder="الكود (اختياري — يترك فارغًا للعشوائي)" style="flex:1; min-width:220px;">
                             <select id="stGrade">
                                 ${getGradeOptions('1')}
-                            </select>
-                            <select id="stGroup">
-                                <option value="">اختر المجموعة (اختياري)</option>
-                                ${studentGroups.map(g => `<option value="${g.id}">${escapeHtml(g.name || 'مجموعة')} — ${escapeHtml(g.days || '')} ${escapeHtml(g.time || '')}</option>`).join('')}
                             </select>
                             <button onclick="addStudent()" class="btn-sm btn-add">➕ إضافة طالب</button>
                         </div>
@@ -2005,7 +2041,6 @@
                                 <th>الاسم</th>
                                 <th>الكود</th>
                                 <th>التليفون</th>
-                                <th>ولي الأمر</th>
                                 <th>الصف</th>
                                 <th>الحالة</th>
                                 <th>آخر دخول</th>
@@ -2026,7 +2061,6 @@
                     <td><strong>${s.name}</strong></td>
                     <td>${s.code}</td>
                     <td>${s.phone || '—'}</td>
-                    <td>${s.parentPhone || '—'}</td>
                     <td><span class="grade-badge ${gradeClass}">${gradeText}</span></td>
                     <td>${statusText}</td>
                     <td>${lastLogin}</td>
@@ -2486,7 +2520,7 @@
                             <input id="vidLessonOrder" type="number" min="1" placeholder="ترتيب الدرس" style="max-width:130px">
                             <select id="vidType">
                                 <option value="normal">🎬 فيديو عادي</option>
-                                <option value="live">📡 بث مباشر</option>
+                                
                             </select>
                             <button onclick="addVideo()" class="btn-sm btn-add">➕ إضافة</button>
                             <button onclick="showCourses()" class="btn-sm" style="background:#34495e;color:#fff">🎓 إضافة/إدارة الكورسات</button>
@@ -3591,7 +3625,7 @@
                         <tbody>${rows}</tbody>
                     </table>
                     <div style="text-align:center;color:#777;font-size:11px;margin-top:15px;border-top:1px solid #ddd;padding-top:10px;">
-                        منصة مستر عمر شعبان © ${new Date().getFullYear()}
+                        منصتك التعليمية © ${new Date().getFullYear()}
                     </div>
                 `;
 
@@ -3756,7 +3790,7 @@
                         <tbody>${rows}</tbody>
                     </table>
                     <div style="text-align:center;color:#777;font-size:11px;margin-top:15px;border-top:1px solid #ddd;padding-top:10px;">
-                        منصة مستر عمر شعبان © ${new Date().getFullYear()}
+                        منصتك التعليمية © ${new Date().getFullYear()}
                     </div>
                 `;
 
@@ -3877,7 +3911,7 @@
             </div>
             ${cardsHtml}
             <div style="text-align:center;color:#777;font-size:10px;margin-top:12px;border-top:1px solid #ddd;padding-top:8px;">
-                منصة مستر عمر شعبان © ${new Date().getFullYear()}
+                منصتك التعليمية © ${new Date().getFullYear()}
             </div>
         `;
 

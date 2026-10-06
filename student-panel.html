@@ -723,7 +723,9 @@
 
     <div class="sidebar">
         <div class="platform-brand">
-            <img src="assets/logo.jpg" alt="منصتك التعليمية" class="platform-logo">
+            <img src="assets/platform-logo.png" alt="منصتك التعليمية" class="platform-logo">
+            
+            
             <div class="platform-brand-title">منصتك التعليمية</div>
             <div class="platform-brand-sub">تعلم • اختبر • تقدم</div>
         </div>
@@ -1870,7 +1872,7 @@
             return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
         }
         function getCourseImage(course, firstVideo) {
-            return course?.imageUrl || youtubeThumb(firstVideo?.data?.url) || 'assets/course-default.png';
+            return course?.imageUrl || youtubeThumb(firstVideo?.data?.url) || 'assets/platform-logo.png';
         }
         async function loadVisibleVideos(studentGrade) {
             let snap;

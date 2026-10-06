@@ -467,15 +467,14 @@
         }
     </script>
 
-    <div class="sidebar">
-        <img src="assets/logo.jpg" alt="منصتك التعليمية" class="admin-img platform-admin-logo">
+    <div class="sidebar" id="adminSidebar">
+        <img src="assets/platform-logo.png" alt="منصتك التعليمية" class="admin-img platform-admin-logo">
         <h3>منصتك التعليمية</h3>
         <div class="admin-role-label">لوحة المشرف</div>
         <ul>
             <li onclick="window.showSection('dashboard')" data-permission="dashboard">📊 الرئيسية</li>
             <li onclick="window.showSection('students')" data-permission="students">👨‍🎓 الطلاب</li>
-            <li onclick="window.showSection('registrationRequests')" data-permission="registrationRequests">📨 طلبات التسجيل</li>
-            <li onclick="window.showSection('courseRequests')" data-permission="courseRequests">🎓 طلبات دخول الكورسات</li>
+            <li onclick="window.showSection('pendingRequests')" data-permission="pendingRequests">⏳ الطلبات المعلقة <span id="pendingRequestsBadge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:2px 7px;font-size:11px;margin-right:6px;font-weight:900">0</span></li>
             <li onclick="window.showSection('lessonQuestions')" data-permission="lessonQuestions">💬 أسئلة الدروس</li>
             <li onclick="window.showSection('courses')" data-permission="courses">🎓 الكورسات</li>
             <li onclick="window.showSection('videos')" data-permission="videos">🎬 الفيديوهات</li>
@@ -500,6 +499,8 @@
         </ul>
     </div>
 
+    <button type="button" class="mobile-menu-toggle" id="adminMobileMenuToggle" onclick="window.toggleAdminMobileSidebar()" aria-label="فتح القائمة">☰</button>
+    <div class="mobile-sidebar-overlay" id="adminMobileSidebarOverlay" onclick="window.closeAdminMobileSidebar()"></div>
     <div class="content" id="content-area">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <h2>مرحباً في لوحة التحكم</h2>
@@ -508,7 +509,12 @@
         <p>اختر أحد الأقسام من القائمة الجانبية</p>
     </div>
 
-    <script src="js/firebase-config.js" type="module"></script>
+    <script>
+window.toggleAdminMobileSidebar=function(){document.getElementById('adminSidebar')?.classList.toggle('mobile-open');document.getElementById('adminMobileSidebarOverlay')?.classList.toggle('open');};
+window.closeAdminMobileSidebar=function(){document.getElementById('adminSidebar')?.classList.remove('mobile-open');document.getElementById('adminMobileSidebarOverlay')?.classList.remove('open');};
+document.addEventListener('click',function(e){if(window.innerWidth<=768 && e.target.closest('.sidebar li')) window.closeAdminMobileSidebar();});
+</script>
+<script src="js/firebase-config.js" type="module"></script>
     <script src="js/device.js" type="module"></script>
     <script type="module">
         import {
@@ -617,7 +623,7 @@
         }
 
         const ASSISTANT_PERMISSIONS = [
-            ['dashboard','الرئيسية'],['students','الطلاب'],['registrationRequests','طلبات التسجيل'],['courseRequests','طلبات دخول الكورسات'],['lessonQuestions','أسئلة الدروس'],
+            ['dashboard','الرئيسية'],['students','الطلاب'],['pendingRequests','الطلبات المعلقة'],['registrationRequests','طلبات التسجيل (قديم)'],['courseRequests','طلبات دخول الكورسات (قديم)'],['lessonQuestions','أسئلة الدروس'],
             ['courses','الكورسات'],['videos','الفيديوهات'],['books','الكتب'],['exams','الاختبارات'],['notifications','الإشعارات'],['progress','تقدم الطلاب']
         ];
 
@@ -692,6 +698,54 @@
 
 
         // ============================================
+        // الطلبات المعلقة: تسجيل جديد + أجهزة جديدة + دخول كورسات
+        // ============================================
+        window.showPendingRequests = async function(){
+            if(!requirePermission('pendingRequests')) return;
+            updatePendingRequestsBadge();
+            try {
+                const [regSnap, deviceSnap, courseSnap, studentsSnap, coursesSnap] = await Promise.all([
+                    getDocs(query(collection(db,'studentRequests'),where('status','==','pending'))),
+                    getDocs(query(collection(db,'pendingDevices'),where('status','==','pending'))),
+                    getDocs(query(collection(db,'courseAccessRequests'),where('status','==','pending'))),
+                    getDocs(collection(db,'students')),
+                    getDocs(collection(db,'courses'))
+                ]);
+                const students={}; studentsSnap.forEach(d=>students[d.id]={id:d.id,...d.data()});
+                const byCode={}; Object.values(students).forEach(x=>{if(x.code) byCode[String(x.code).toUpperCase()]=x;});
+                const courses={}; coursesSnap.forEach(d=>courses[d.id]=d.data());
+                const total=regSnap.size+deviceSnap.size+courseSnap.size;
+
+                let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+                    <div><h2 style="margin-bottom:6px">⏳ الطلبات المعلقة</h2><p style="color:#777;margin-top:0">كل الطلبات التي تحتاج موافقة المشرف في مكان واحد.</p></div>
+                    <div style="background:#fff;border:1px solid #e6edf2;border-radius:14px;padding:12px 18px;font-weight:900;color:#0b1d33">إجمالي المعلق: <span style="color:#ef4444">${total}</span></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:15px 0">
+                    <div class="admin-section-card"><div style="font-size:26px">👤</div><b>طلبات إنشاء الحساب</b><div style="font-size:25px;font-weight:900;color:#10b981">${regSnap.size}</div></div>
+                    <div class="admin-section-card"><div style="font-size:26px">📱</div><b>طلبات هاتف/جهاز جديد</b><div style="font-size:25px;font-weight:900;color:#f59e0b">${deviceSnap.size}</div></div>
+                    <div class="admin-section-card"><div style="font-size:26px">🎓</div><b>طلبات دخول الكورسات</b><div style="font-size:25px;font-weight:900;color:#8b5cf6">${courseSnap.size}</div></div>
+                </div>`;
+
+                html+=`<div class="admin-section-card"><h3>👤 طلبات إنشاء حساب جديد</h3>`;
+                if(regSnap.empty) html+=`<p style="color:#777">لا توجد طلبات إنشاء حساب معلقة.</p>`;
+                regSnap.forEach(d=>{const x=d.data(); html+=`<div style="border:1px solid #e7edf2;border-radius:14px;padding:14px;margin:10px 0;background:#fbfdff"><b>${escapeHtml(x.name)}</b><div style="color:#666;margin:5px 0">📞 ${escapeHtml(x.phone)} · 🎓 ${escapeHtml(x.grade)}</div><small style="color:#888">${contentTime(x)?new Date(contentTime(x)).toLocaleString('ar-EG'):'—'}</small><div style="margin-top:10px"><button class="btn-sm btn-success" onclick="approveRegistration('${d.id}','random')">✅ موافقة + كود عشوائي</button> <button class="btn-sm btn-edit" onclick="approveRegistration('${d.id}','manual')">✍️ كود أكتبه</button> <button class="btn-sm btn-danger" onclick="rejectRegistration('${d.id}')">❌ رفض</button></div></div>`});
+                html+=`</div>`;
+
+                html+=`<div class="admin-section-card" style="margin-top:16px"><h3>📱 طلبات الدخول من هاتف/جهاز جديد</h3><p style="color:#777">تظهر هنا عندما يحاول طالب الدخول من هاتف جديد ويحتاج موافقة المشرف.</p>`;
+                if(deviceSnap.empty) html+=`<p style="color:#777">لا توجد طلبات أجهزة معلقة.</p>`;
+                deviceSnap.forEach(d=>{const x=d.data(); const st=byCode[String(x.studentCode||'').toUpperCase()]||{}; html+=`<div style="border:1px solid #e7edf2;border-radius:14px;padding:14px;margin:10px 0;background:#fff7ed"><b>👤 ${escapeHtml(st.name||x.studentCode||'طالب')}</b><div style="color:#666;margin:5px 0">🔑 الكود: ${escapeHtml(x.studentCode||'—')} · 📱 الجهاز: ${escapeHtml(x.deviceId||'—')} · 🎓 ${escapeHtml(st.grade||x.grade||'—')}</div><small style="color:#888">${contentTime(x)?new Date(contentTime(x)).toLocaleString('ar-EG'):'—'}</small><div style="margin-top:10px"><button class="btn-sm btn-success" onclick="approveDevice('${d.id}', '${escapeHtml(x.studentCode||'')}', '${escapeHtml(x.deviceId||'')}')">✅ موافقة</button> <button class="btn-sm btn-danger" onclick="rejectDevice('${d.id}')">❌ رفض</button></div></div>`});
+                html+=`</div>`;
+
+                html+=`<div class="admin-section-card" style="margin-top:16px"><h3>🎓 طلبات دخول الكورسات</h3>`;
+                if(courseSnap.empty) html+=`<p style="color:#777">لا توجد طلبات دخول كورسات معلقة.</p>`;
+                courseSnap.forEach(d=>{const x=d.data(); html+=`<div style="border:1px solid #e7edf2;border-radius:14px;padding:14px;margin:10px 0;background:#faf7ff"><b>👤 ${escapeHtml(x.studentName||x.studentCode||'طالب')}</b><div style="color:#666;margin:5px 0">🎓 ${escapeHtml(courses[x.courseId]?.name||x.courseName||x.courseId||'كورس')} · الصف: ${escapeHtml(x.grade||'—')}</div><div style="margin-top:10px"><button class="btn-sm btn-success" onclick="approveCourseRequest('${d.id}')">✅ موافقة</button> <button class="btn-sm btn-danger" onclick="rejectCourseRequest('${d.id}')">❌ رفض</button></div></div>`});
+                html+=`</div>`;
+
+                document.getElementById('content-area').innerHTML=html;
+            } catch(e) { console.error(e); document.getElementById('content-area').innerHTML='<div class="admin-section-card"><h2>❌ تعذر تحميل الطلبات</h2><p>تأكد من صلاحيات Firestore ثم أعد المحاولة.</p></div>'; }
+        };
+
+        // ============================================
         // طلبات التسجيل + طلبات دخول الكورسات + أسئلة الدروس
         // ============================================
         window.showRegistrationRequests = async function(){
@@ -709,9 +763,9 @@
             const pq=query(collection(db,'students'),where('phone','==',r.phone)); if(!(await getDocs(pq)).empty) return alert('هذا الرقم أصبح مسجلًا بالفعل');
             await addDoc(collection(db,'students'),{name:r.name,phone:r.phone,grade:r.grade,code,status:'inactive',deviceIds:[],firstLogin:null,lastLogin:null,registeredAt:serverTimestamp(),profileComplete:!!(r.name&&r.phone&&r.grade)});
             await updateDoc(refReq,{status:'approved',approvedAt:serverTimestamp(),approvedCode:code,approvedBy:adminName});
-            alert(`✅ تمت الموافقة. كود الطالب: ${code}`); window.showRegistrationRequests();
+            alert(`✅ تمت الموافقة. كود الطالب: ${code}`); window.showPendingRequests();
         };
-        window.rejectRegistration=async function(id){ if(!confirm('رفض طلب التسجيل؟')) return; await updateDoc(doc(db,'studentRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName}); window.showRegistrationRequests(); };
+        window.rejectRegistration=async function(id){ if(!confirm('رفض طلب التسجيل؟')) return; await updateDoc(doc(db,'studentRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName}); window.showPendingRequests(); };
 
         window.showCourseRequests=async function(){
             if(!requirePermission('courseRequests')) return; const snap=await getDocs(query(collection(db,'courseAccessRequests'),where('status','==','pending')));
@@ -721,8 +775,8 @@
             snap.forEach(d=>{const x=d.data(); html+=`<tr><td>${escapeHtml(x.studentName||x.studentCode)}</td><td>${escapeHtml(cm[x.courseId]?.name||x.courseId)}</td><td>${escapeHtml(x.grade||'')}</td><td><button class="btn-sm btn-success" onclick="approveCourseRequest('${d.id}')">✅ موافقة</button> <button class="btn-sm btn-danger" onclick="rejectCourseRequest('${d.id}')">🗑️ رفض</button></td></tr>`});
             html+='</table></div>'; document.getElementById('content-area').innerHTML=html;
         };
-        window.approveCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:adminName});alert('✅ تمت الموافقة على دخول الكورس');window.showCourseRequests();};
-        window.rejectCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName});window.showCourseRequests();};
+        window.approveCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'approved',approvedAt:serverTimestamp(),approvedBy:adminName});alert('✅ تمت الموافقة على دخول الكورس');window.showPendingRequests();};
+        window.rejectCourseRequest=async function(id){await updateDoc(doc(db,'courseAccessRequests',id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:adminName});window.showPendingRequests();};
 
         window.showLessonQuestions=async function(){
             if(!requirePermission('lessonQuestions')) return; const snap=await getDocs(collection(db,'lessonQuestions')); const rows=[]; snap.forEach(d=>rows.push({id:d.id,...d.data()})); rows.sort((a,b)=>contentTime(b)-contentTime(a));
@@ -1025,7 +1079,16 @@
                                 th { background: #2c3e50 !important; color: white !important; }
                                 tr:nth-child(even) { background: #f7f9fc !important; }
                             }
-                        </style>
+                        
+/* ===== لوحة المشرف متجاوبة على الهاتف والتابلت ===== */
+@media(max-width:768px){
+ .mobile-menu-toggle{position:fixed;top:10px;right:10px;z-index:10002;width:44px;height:44px;border:0;border-radius:12px;background:#0b1d33;color:#fff;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;cursor:pointer}
+ .mobile-sidebar-overlay{position:fixed;inset:0;background:rgba(5,14,27,.48);z-index:10000;opacity:0;visibility:hidden;transition:.2s}
+ .mobile-sidebar-overlay.open{opacity:1;visibility:visible}
+ .sidebar .platform-brand{padding-top:6px}
+ .header-bar{padding-right:62px!important}
+}
+</style>
                     </head>
                     <body>
                         <div class="print-header">
@@ -1168,7 +1231,9 @@
         }
 
         function hasPermission(permission) {
-            return isPrimaryAdmin() || adminPermissions.includes('*') || adminPermissions.includes(permission);
+            if (isPrimaryAdmin() || adminPermissions.includes('*') || adminPermissions.includes(permission)) return true;
+            if (permission === 'pendingRequests') return adminPermissions.includes('registrationRequests') || adminPermissions.includes('courseRequests');
+            return false;
         }
 
         window.__canUsePermission = hasPermission;
@@ -1199,9 +1264,22 @@
         }
         const esc = escapeHtml;
 
+        window.updatePendingRequestsBadge = async function updatePendingRequestsBadge() {
+            try {
+                const [a,b,c] = await Promise.all([
+                    getDocs(query(collection(db,'studentRequests'),where('status','==','pending'))),
+                    getDocs(query(collection(db,'pendingDevices'),where('status','==','pending'))),
+                    getDocs(query(collection(db,'courseAccessRequests'),where('status','==','pending')))
+                ]);
+                const n=a.size+b.size+c.size;
+                const badge=document.getElementById('pendingRequestsBadge');
+                if(badge){ badge.textContent=n; badge.style.display=n?'inline-block':'none'; }
+            } catch(e) {}
+        }
+
         window.showSection = function(section) {
             const permissionMap = {
-                dashboard:'dashboard', students:'students', registrationRequests:'registrationRequests', courseRequests:'courseRequests', lessonQuestions:'lessonQuestions', courses:'courses', videos:'videos', books:'books', exams:'exams', notifications:'notifications', dangerZone:'dangerZone'
+                dashboard:'dashboard', students:'students', pendingRequests:'pendingRequests', registrationRequests:'registrationRequests', courseRequests:'courseRequests', lessonQuestions:'lessonQuestions', courses:'courses', videos:'videos', books:'books', exams:'exams', notifications:'notifications', dangerZone:'dangerZone'
             };
             if (section !== 'assistants' && !requirePermission(permissionMap[section] || section)) return;
             if (section === 'assistants' && !isPrimaryAdmin()) return alert('⛔ هذا القسم للمشرف الأساسي فقط');
@@ -1210,6 +1288,7 @@
             switch (section) {
                 case 'dashboard': showDashboard(); break;
                 case 'students': window.showStudents(); break;
+                case 'pendingRequests': window.showPendingRequests(); break;
                 case 'registrationRequests': window.showRegistrationRequests(); break;
                 case 'courseRequests': window.showCourseRequests(); break;
                 case 'lessonQuestions': window.showLessonQuestions(); break;
@@ -2406,7 +2485,7 @@
             let html=`<h2>🎓 الكورسات</h2><div class="filter-bar"><input id="courseName" placeholder="اسم الكورس"><input id="courseSubject" placeholder="المادة"><select id="courseGrade">${getGradeOptions('all')}</select><input id="courseImageFile" type="file" accept="image/*"><input id="courseDescription" placeholder="وصف مختصر"><button onclick="addCourse()" class="btn-sm btn-add">➕ إضافة كورس</button></div>`;
             html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:15px;margin-top:18px">`;
             if(!courses.length) html+=`<div style="background:white;padding:25px;border-radius:15px;color:#777">لا توجد كورسات بعد. أضف أول كورس من النموذج بالأعلى.</div>`;
-            courses.forEach(c=>{html+=`<div style="background:white;border:1px solid #ddd;border-radius:18px;overflow:hidden"><div style="height:145px;background:#eaf7f3"><img src="${escapeHtml(c.imageUrl || 'assets/course-default.png')}" style="width:100%;height:100%;object-fit:cover"></div><div style="padding:15px"><h3 style="margin:0 0 7px">${escapeHtml(c.name||'كورس')}</h3><p style="color:#777;margin:0 0 7px">${escapeHtml(c.subject||'')} • ${escapeHtml(c.grade==='1'?'أولى ثانوي':c.grade==='2'?'ثانية ثانوي':c.grade==='3'?'ثالثة ثانوي':'للجميع')}</p><p style="color:#0a956c;font-weight:800">🎥 ${counts[c.id]||0} فيديو</p><button onclick="deleteCourse('${escapeHtml(c.id)}')" class="btn-sm" style="background:#e74c3c;color:white">🗑️ حذف الكورس</button></div></div>`;});
+            courses.forEach(c=>{html+=`<div style="background:white;border:1px solid #ddd;border-radius:18px;overflow:hidden"><div style="height:145px;background:#eaf7f3"><img src="${escapeHtml(c.imageUrl || 'assets/platform-logo.png')}" style="width:100%;height:100%;object-fit:cover"></div><div style="padding:15px"><h3 style="margin:0 0 7px">${escapeHtml(c.name||'كورس')}</h3><p style="color:#777;margin:0 0 7px">${escapeHtml(c.subject||'')} • ${escapeHtml(c.grade==='1'?'أولى ثانوي':c.grade==='2'?'ثانية ثانوي':c.grade==='3'?'ثالثة ثانوي':'للجميع')}</p><p style="color:#0a956c;font-weight:800">🎥 ${counts[c.id]||0} فيديو</p><button onclick="deleteCourse('${escapeHtml(c.id)}')" class="btn-sm" style="background:#e74c3c;color:white">🗑️ حذف الكورس</button></div></div>`;});
             html+=`</div>`; document.getElementById('content-area').innerHTML=html;
         };
 
@@ -3234,13 +3313,13 @@
             } else {
                 alert('⚠️ هذا الجهاز معتمد بالفعل');
             }
-            window.showPendingDevices();
+            window.showPendingRequests();
         };
 
         window.rejectDevice = async function(docId) {
             await updateDoc(doc(db, 'pendingDevices', docId), { status: 'rejected' });
             alert('❌ تم رفض الجهاز');
-            window.showPendingDevices();
+            window.showPendingRequests();
         };
 
         window.showLiveSettings = async function() {
@@ -4392,7 +4471,7 @@
                 element.innerHTML = `
                     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; border-bottom:2px solid #2c3e50; padding-bottom:15px;">
-                        <img src="assets/logo.jpg" style="width:60px; height:60px; border-radius:50%; object-fit:cover;" alt="شعار المنصة">
+                        <img src="assets/platform-logo.png" style="width:60px; height:60px; border-radius:50%; object-fit:cover;" alt="شعار المنصة">
                         <div>
                             <h1 style="color:#2c3e50; margin:0; font-size:22px;">منصة تعليمية</h1>
                             <p style="color:#7f8c8d; margin:0; font-size:12px;">تقرير المصروفات</p>
@@ -4795,6 +4874,7 @@ applyAdminPermissions();
 
 await getGrades();
         await window.showSection('dashboard');
+        await window.updatePendingRequestsBadge();
     </script>
 <script type="module">
 import { db, collection, addDoc, getDocs, deleteDoc, doc, query, where, getDoc, serverTimestamp } from "./js/firebase-config.js";
@@ -4984,3 +5064,4 @@ import { db, collection, addDoc, getDocs, deleteDoc, doc, query, where, getDoc, 
 
 </body>
 </html>
+

@@ -627,3 +627,46 @@ body.dark-mode .theme-toggle {
         display: none !important;
     }
 }
+
+/* ===== Responsive foundation - منصتك التعليمية ===== */
+html{width:100%;overflow-x:hidden}
+body{width:100%;min-width:0;overflow-x:hidden}
+img{max-width:100%}
+button,input,select,textarea{max-width:100%}
+.content{min-width:0}
+.content table{width:100%;max-width:100%;display:block;overflow-x:auto;white-space:nowrap}
+@media (max-width: 1024px){
+  .sidebar{width:235px;padding:16px 12px}
+  .content{margin-right:245px;padding:22px 18px}
+  .header-bar{margin-right:245px}
+  .dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 768px){
+  body{font-size:14px}
+  .sidebar{width:min(330px,88vw)!important;right:-350px!important;left:auto!important;top:0!important;height:100dvh!important;z-index:10001!important;transition:right .25s ease!important}
+  .sidebar.mobile-open{right:0!important}
+  .content{margin-right:0!important;width:100%!important;padding:14px 12px 90px!important}
+  .header-bar{margin-right:0!important;padding:10px 12px!important;min-height:58px}
+  .header-bar h2{font-size:18px!important}
+  .dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .dashboard-card{padding:14px!important}
+  .dashboard-card .number{font-size:25px}
+  .filter-bar{padding:10px!important;gap:7px}
+  .filter-bar>*{width:100%!important;min-width:0!important}
+  .admin-section-card{padding:13px!important;border-radius:15px}
+  .content h2{font-size:21px}
+  .mobile-menu-toggle{display:flex!important}
+  .mobile-sidebar-overlay{display:block!important}
+}
+@media (max-width: 520px){
+  .dashboard-cards{grid-template-columns:1fr}
+  .dashboard-card .number{font-size:28px}
+  .content{padding-left:9px!important;padding-right:9px!important}
+  table{font-size:12px}
+  th,td{padding:9px 7px!important}
+  .btn-sm{padding:7px 9px!important}
+  .device-item{flex-direction:column;align-items:stretch;gap:8px}
+}
+@media (min-width:769px){
+  .mobile-menu-toggle,.mobile-sidebar-overlay{display:none!important}
+}
